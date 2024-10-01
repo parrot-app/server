@@ -1,0 +1,9 @@
+.vscode/*
+!.vscode/launch.json
+cache/*
+node_modules
+.env
+dist
+logs/*
+parrot.functions.js
+*.tgz
