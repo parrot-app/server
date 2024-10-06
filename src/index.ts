@@ -6,6 +6,7 @@ import cors from 'cors';
 import colors from 'colors';
 import { ServerConfig } from './config';
 import { logError, logIn, logOut } from './helpers/Logger';
+import { CacheHandler } from './handlers/Cache.handler';
 
 dotenv.config();
 
@@ -14,12 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 
-const cachePath = `${ServerConfig.cachePath}/requests.json`;
-
-// Initialize cache file
-if (!fs.existsSync(cachePath)) {
-  fs.writeFileSync(cachePath, '[]');
-}
+const cachePath = CacheHandler.init(ServerConfig);
 
 app.use(async (req, res, next) => {
   const { method, url, headers, body } = req;
