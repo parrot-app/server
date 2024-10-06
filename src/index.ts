@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import colors from 'colors';
 import { CachedRequest } from './interfaces/CachedRequest.interface';
+import { ServerConfig } from './config';
 
 dotenv.config();
 
@@ -12,12 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
-const port = 3000;
 
-const apiBaseUrl = process.env.API_BASE; // from .env file
-const gracefulFail = process.env.GRACEFUL_FAIL || true;
-
-const cachePath = `${process.cwd()}/cache/requests.json`;
+const cachePath = `${ServerConfig.cachePath}/requests.json`;
 
 // Initialize cache file
 if (!fs.existsSync(cachePath)) {
@@ -33,7 +30,7 @@ app.use(async (req, res, next) => {
     request.method === method && request.url === url
   );
 
-  if (cachedRequest) {
+  if (cachedRequest && !ServerConfig.bypassCache) {
     // Return cached response
     console.log(colors.green(`[➡] Using cached response for ${method} ${url}`));
     const headers = JSON.parse(cachedRequest.headers)
@@ -42,10 +39,13 @@ app.use(async (req, res, next) => {
         res.setHeader(key, headers[key]);
       });
     }
+    if(cachedRequest.code) {
+      res.statusCode = cachedRequest.code;
+    }
     res.send(cachedRequest.response);
   } else {
     // Call external API and cache response
-    const externalUrl = `${apiBaseUrl}${url}`;
+    const externalUrl = `${ServerConfig.baseUrl}${url}`;
     console.log(colors.cyan(`[⬅] Fetching external API: ${externalUrl}`));
     try {
       const response = await axios({
@@ -82,6 +82,6 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`🦜 [ParrotJS Server] running on http://localhost:${port}`);
+app.listen(ServerConfig.port, ServerConfig.host, () => {
+  console.log(`🦜 [ParrotJS Server] running on http://${ServerConfig.host}:${ServerConfig.port}`);
 });
