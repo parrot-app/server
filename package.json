@@ -1,9 +1,9 @@
 {
-  "name": "proxy-cache-server",
+  "name": "ParrotJS",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "tsc && node dist/index.js",
     "dev": "nodemon"
   },
   "keywords": [],
