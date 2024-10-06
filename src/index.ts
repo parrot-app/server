@@ -4,8 +4,8 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import colors from 'colors';
-import { CachedRequest } from './interfaces/CachedRequest.interface';
 import { ServerConfig } from './config';
+import { logError, logIn, logOut } from './helpers/Logger';
 
 dotenv.config();
 
@@ -26,14 +26,12 @@ app.use(async (req, res, next) => {
   const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
 
   // Check if cache file exists
-  const cachedRequest = cache.find((request: CachedRequest) =>
-    request.method === method && request.url === url
-  );
+  const cachedRequest = ServerConfig.matchBy(req, cache);
 
   if (cachedRequest && !ServerConfig.bypassCache) {
     // Return cached response
-    console.log(colors.green(`[➡] Using cached response for ${method} ${url}`));
-    const headers = JSON.parse(cachedRequest.headers)
+    logIn(`Using cached response for ${method} ${url}`);
+    const headers = JSON.parse(cachedRequest?.headers || '{}');
     if (headers && Object.keys(headers).length > 0) {
       Object.keys(headers).map(key => {
         res.setHeader(key, headers[key]);
@@ -46,7 +44,7 @@ app.use(async (req, res, next) => {
   } else {
     // Call external API and cache response
     const externalUrl = `${ServerConfig.baseUrl}${url}`;
-    console.log(colors.cyan(`[⬅] Fetching external API: ${externalUrl}`));
+    logOut(`Fetching external API: ${externalUrl}`);
     try {
       const response = await axios({
         method,
@@ -76,7 +74,7 @@ app.use(async (req, res, next) => {
       console.log(colors.green(`[✔] Cached response for ${method} ${url}`));
       res.send(responseBody);
     } catch (error) {
-      console.error(`[❌] Error fetching external API: ${error}`);
+      logError(`Error fetching external API: ${error}`);
       res.status(500).send('Error fetching external API');
     }
   }
