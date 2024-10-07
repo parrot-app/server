@@ -7,7 +7,7 @@ class ParrotConfig implements Config {
     host = 'localhost';
     cachePath = `${process.cwd()}/cache`;
     requestsCacheFileName = 'requests.json';
-    encoding = 'utf8';
+    encoding = 'utf8' as BufferEncoding;
     baseUrl = process.env.API_BASE || 'localhost';
     gracefulFail = (process.env.GRACEFUL_FAIL ? /true/.test(process.env.GRACEFUL_FAIL) : false) || true;
     bypassCache = process.argv.find(v => v === 'bypass') ? true : false;
