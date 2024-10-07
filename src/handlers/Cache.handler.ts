@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import fs from 'fs';
+import fs from 'fs-extra';
 import { Config } from "../interfaces/Config.interface";
 import { CachedRequest } from "../interfaces/CachedRequest.interface";
 import { AxiosResponse } from "axios";
@@ -14,7 +14,7 @@ export class CacheHandler {
     public static init(config: Config) {
         const cachePath = `${config.cachePath}/${config.requestsCacheFileName}`;
         if (!fs.existsSync(cachePath)) {
-            fs.writeFileSync(cachePath, '[]');
+            fs.outputFileSync(cachePath, '[]');
         }
         return cachePath;
     }
@@ -55,15 +55,14 @@ export class CacheHandler {
                 response: responseFilePath ? responseFilePath : undefined,
             },
         ];
-        fs.writeFileSync(cachePath, JSON.stringify(newCache, null, 4));
+        fs.outputFileSync(cachePath, JSON.stringify(newCache, null, 4));
     }
     private createResponseBodyFile(response: AxiosResponse) {
         if (!response.data) {
             return undefined
         }
-        const cachePath = `${this.config.cachePath}/${this.config.requestsCacheFileName}`;
-        const filePath = `${cachePath}${this.request.url}_body.json`
-        fs.writeFileSync(filePath, JSON.stringify(response.data), this.config.encoding);
+        const filePath = `${this.config.cachePath}${this.request.url}_body.json`
+        fs.outputFileSync(filePath, JSON.stringify(response.data, null, 4), this.config.encoding);
         return filePath;
     }
 
@@ -71,9 +70,8 @@ export class CacheHandler {
         if (!response.headers) {
             return undefined
         }
-        const cachePath = `${this.config.cachePath}/${this.config.requestsCacheFileName}`;
-        const filePath = `${cachePath}${this.request.url}_headers.json`
-        fs.writeFileSync(filePath, JSON.stringify(response.headers), this.config.encoding);
+        const filePath = `${this.config.cachePath}${this.request.url}_headers.json`
+        fs.outputFileSync(filePath, JSON.stringify(response.headers, null, 4), this.config.encoding);
         return filePath;
     }
 }

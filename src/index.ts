@@ -1,14 +1,9 @@
 import express from 'express';
-import fs from 'fs';
 import axios from 'axios';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import colors from 'colors';
 import { ServerConfig } from './config';
-import { logError, logIn, logOut } from './helpers/Logger';
+import { logError, logIn, logOut, logSuccess } from './helpers/Logger';
 import { CacheHandler } from './handlers/Cache.handler';
-
-dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -42,6 +37,7 @@ app.use(async (req, res, next) => {
     res.send(cachedRequest.response);
   } else {
     // Call external API and cache response
+    console.log(ServerConfig.baseUrl)
     const externalUrl = `${ServerConfig.baseUrl}${url}`;
     logOut(`Fetching external API: ${externalUrl}`);
     try {
@@ -54,24 +50,13 @@ app.use(async (req, res, next) => {
       });
       const responseBody = response.data;
       const responseHeaders = response.headers;
-      console.log(req.url)
+      
+      cacheHandler.saveCacheRequest(response);
 
-      // Add request to cache
-      const newCache = [
-        ...cache,
-        {
-          method,
-          url,
-          body: JSON.stringify(body),
-          headers: JSON.stringify(responseHeaders),
-          response: JSON.stringify(responseBody),
-        },
-      ];
+      Object.keys(responseHeaders).forEach((key) => {
+        res.setHeader(key, responseHeaders[key as keyof typeof responseHeaders] as string);
+      });
 
-      fs.writeFileSync(cachePath, JSON.stringify(newCache, null, 4));
-
-
-      console.log(colors.green(`[✔] Cached response for ${method} ${url}`));
       res.send(responseBody);
     } catch (error) {
       logError(`Error fetching external API: ${error}`);
@@ -82,4 +67,5 @@ app.use(async (req, res, next) => {
 
 app.listen(ServerConfig.port, ServerConfig.host, () => {
   console.log(`🦜 [ParrotJS Server] running on http://${ServerConfig.host}:${ServerConfig.port}`);
+  logSuccess(`External queries will be sent to: ${ServerConfig.baseUrl}`);
 });

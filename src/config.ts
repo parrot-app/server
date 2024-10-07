@@ -1,6 +1,9 @@
 import { CachedRequest } from "./interfaces/CachedRequest.interface";
 import { Config } from "./interfaces/Config.interface";
 import { Request } from "express";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 class ParrotConfig implements Config {
     port = 3000;
