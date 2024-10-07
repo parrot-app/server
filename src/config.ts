@@ -14,6 +14,16 @@ class ParrotConfig implements Config {
     baseUrl = process.env.API_BASE || 'localhost';
     gracefulFail = (process.env.GRACEFUL_FAIL ? /true/.test(process.env.GRACEFUL_FAIL) : false) || true;
     bypassCache = process.argv.find(v => v === 'bypass') ? true : false;
+    /* proxy = {
+        host: 'YOUR_PROXY',
+        port: 8888,
+        auth: {
+            username: '**REDACTED',
+            password: '**REDACTED**'
+        },
+        protocol: 'http',
+    }; */
+    proxy = false as const;
     matchBy = (request: Request, cache: Array<CachedRequest>) => {
         const cachedRequest = cache.find((cReq: CachedRequest) =>
             cReq.method === request.method && cReq.url === request.url

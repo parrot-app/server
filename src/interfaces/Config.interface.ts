@@ -1,3 +1,4 @@
+import { AxiosProxyConfig } from "axios";
 import { CachedRequest } from "./CachedRequest.interface";
 import { Request } from "express";
 
@@ -10,5 +11,6 @@ export interface Config {
     baseUrl: string;
     gracefulFail: boolean;
     bypassCache: boolean;
+    proxy: false | AxiosProxyConfig | undefined;
     matchBy: (request: Request, cache: Array<CachedRequest>) => CachedRequest | null;
 }
