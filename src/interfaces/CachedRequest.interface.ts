@@ -3,6 +3,6 @@ export interface CachedRequest {
     url: string;
     body?: any;
     code?: number;
-    headers?: string;
+    headers?: [key: string, value: string] | string;
     response: any;
 }

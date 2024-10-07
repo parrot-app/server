@@ -6,7 +6,7 @@ export interface Config {
     host: string;
     cachePath: string;
     requestsCacheFileName: string;
-    encoding: string;
+    encoding: BufferEncoding;
     baseUrl: string;
     gracefulFail: boolean;
     bypassCache: boolean;

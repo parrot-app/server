@@ -19,21 +19,24 @@ const cachePath = CacheHandler.init(ServerConfig);
 
 app.use(async (req, res, next) => {
   const { method, url, headers, body } = req;
-  const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
 
-  // Check if cache file exists
-  const cachedRequest = ServerConfig.matchBy(req, cache);
+  const cacheHandler = new CacheHandler(req, res, ServerConfig);
+  const cachedRequest = cacheHandler.cachedRequest;
 
   if (cachedRequest && !ServerConfig.bypassCache) {
     // Return cached response
     logIn(`Using cached response for ${method} ${url}`);
-    const headers = JSON.parse(cachedRequest?.headers || '{}');
-    if (headers && Object.keys(headers).length > 0) {
-      Object.keys(headers).map(key => {
-        res.setHeader(key, headers[key]);
+    const cachedResponseHeaders = cachedRequest?.headers;
+    if (
+      cachedResponseHeaders
+      && typeof cachedResponseHeaders === 'object'
+      && Object.keys(cachedResponseHeaders).length > 0
+    ) {
+      Object.keys(cachedResponseHeaders).forEach((key) => {
+        res.setHeader(key, cachedResponseHeaders[key as keyof typeof cachedResponseHeaders] as string);
       });
     }
-    if(cachedRequest.code) {
+    if (cachedRequest.code) {
       res.statusCode = cachedRequest.code;
     }
     res.send(cachedRequest.response);
@@ -51,6 +54,7 @@ app.use(async (req, res, next) => {
       });
       const responseBody = response.data;
       const responseHeaders = response.headers;
+      console.log(req.url)
 
       // Add request to cache
       const newCache = [
@@ -66,7 +70,7 @@ app.use(async (req, res, next) => {
 
       fs.writeFileSync(cachePath, JSON.stringify(newCache, null, 4));
 
-      
+
       console.log(colors.green(`[✔] Cached response for ${method} ${url}`));
       res.send(responseBody);
     } catch (error) {
