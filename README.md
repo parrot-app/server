@@ -53,3 +53,7 @@ This is a legitimate question. I usually mock when I can. But when I'm dealing w
 ## What about privacy?
 
 ParrotJS runs (and should always run) in your local environnement to keep all your requests and responses safe. Everything is saved in plain JSON files you can read, change and delete. No data is collected about you, your work, your data or anything. This is also why ParrotJS is FREE and OpenSource.
+
+## Current limitations
+
+[ ] Corporate proxy is hit or miss
