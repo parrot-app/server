@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class ParrotConfig implements Config {
-    port = 3000;
+    port = process.env.PARROT_PORT ? Number(process.env.PARROT_PORT) : 3000;
     host = 'localhost';
     cachePath = `${process.cwd()}/cache`;
     requestsCacheFileName = 'requests.json';
