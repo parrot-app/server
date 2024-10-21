@@ -11,6 +11,8 @@ export interface Config {
     baseUrl: string;
     gracefulFail: boolean;
     bypassCache: boolean;
+    isHttps: boolean;
+    rejectUnauthorized: boolean;
     proxy: false | AxiosProxyConfig | undefined;
     matchBy: (request: Request, cache: Array<CachedRequest>) => CachedRequest | null;
 }

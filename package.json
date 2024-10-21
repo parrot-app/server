@@ -18,13 +18,17 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "fs-extra": "^11.2.0",
-    "http-proxy-agent": "^7.0.2"
+    "http": "^0.0.1-security",
+    "http-proxy-agent": "^7.0.2",
+    "https": "^1.0.0",
+    "selfsigned": "^2.4.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.6.1",
+    "@types/selfsigned": "^2.0.4",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"

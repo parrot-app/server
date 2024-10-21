@@ -92,12 +92,16 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 ## Current limitations/planned improvements
 
 [ ] Corporate proxy is hit or miss
+[ ] Compare request content and privelige responses with content rather than without
 [ ] Handles only JSON responses
 [ ] Error catching
 [ ] Parse and call OpenAPI files?
 [ ] Smart error catching (for example if `/user/ID_0029` is cached, respond with the same data for `/user/ID_0030` and increment relevant items)
 [ ] Multiple API base URLs?
 [ ] Interactive-mode CLI for API handling? (useful?)
+[ ] WS and WSS protocol?
+[ ] GraphQL support?
+[ ] Proxy any kind of file based on mimetype?
 
 ## Contribute
 
