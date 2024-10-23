@@ -2,6 +2,7 @@ import { CachedRequest } from "./interfaces/CachedRequest.interface";
 import { Config } from "./interfaces/Config.interface";
 import { Request } from "express";
 import dotenv from 'dotenv';
+import { StoredCachedRequest } from "./interfaces/StoredCachedRequest.interface";
 
 dotenv.config();
 
@@ -26,8 +27,8 @@ class ParrotConfig implements Config {
         protocol: 'http',
     }; */
     proxy = false as const;
-    matchBy = (request: Request, cache: Array<CachedRequest>) => {
-        const cachedRequest = cache.find((cReq: CachedRequest) =>
+    matchBy = (request: Request, cache: Array<StoredCachedRequest>) => {
+        const cachedRequest = cache.find((cReq: StoredCachedRequest) =>
             cReq.method === request.method && cReq.url === request.url
         );
         return cachedRequest || null;

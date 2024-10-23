@@ -1,6 +1,6 @@
 import { AxiosProxyConfig } from "axios";
-import { CachedRequest } from "./CachedRequest.interface";
 import { Request } from "express";
+import { StoredCachedRequest } from "./StoredCachedRequest.interface";
 
 export interface Config {
     port: number;
@@ -14,5 +14,5 @@ export interface Config {
     isHttps: boolean;
     rejectUnauthorized: boolean;
     proxy: false | AxiosProxyConfig | undefined;
-    matchBy: (request: Request, cache: Array<CachedRequest>) => CachedRequest | null;
+    matchBy: (request: Request, cache: Array<StoredCachedRequest>) => StoredCachedRequest | null;
 }

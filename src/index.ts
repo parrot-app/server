@@ -10,6 +10,7 @@ import { logError, logIn, logOut, logSuccess } from './helpers/Logger';
 import { CacheHandler } from './handlers/Cache.handler';
 import { Config } from './interfaces/Config.interface';
 import { CertGenerator } from './helpers/CertGenerator';
+import { CachedRequest, CachedResponseHeader } from './interfaces/CachedRequest.interface';
 
 const app = express();
 app.use(cors());
@@ -18,7 +19,7 @@ app.use(express.urlencoded());
 
 CacheHandler.init(ServerConfig);
 
-const agent = new https.Agent({  
+const agent = new https.Agent({
   rejectUnauthorized: ServerConfig.rejectUnauthorized,
 });
 
@@ -34,24 +35,30 @@ app.use(async (req, res, next) => {
   next();
 });
 
-function getCachedRequest(req: express.Request, res: express.Response, serverConfig: Config): any {
+function getCachedRequest(req: express.Request, res: express.Response, serverConfig: Config): CachedRequest | null {
   const cacheHandler = new CacheHandler(req, res, serverConfig);
   return cacheHandler.cachedRequest;
 }
 
-function useCachedResponse(cachedRequest: any, res: express.Response): void {
+function useCachedResponse(cachedRequest: CachedRequest, res: express.Response): void {
   logIn(`Using cached response for ${cachedRequest.method} ${cachedRequest.url}`);
 
-  const headerKeys = getCleanHeaderKeys(cachedRequest.headers);
-  headerKeys.forEach((key) => {
-    res.setHeader(key, cachedRequest.headers[key]);
-  });
+  if (Object.keys(cachedRequest?.responseHeaders).length > 0) {
+    const headerKeys = getCleanHeaderKeys(cachedRequest.responseHeaders);
+    Object.keys(cachedRequest?.responseHeaders).forEach(key => {
+      if (
+        headerKeys.find(k => key === k)
+      ) {
+        res.setHeader(key, cachedRequest.responseHeaders[key]);
+      }
+    });
+  }
 
   if (cachedRequest.code) {
     res.statusCode = cachedRequest.code;
   }
 
-  res.send(cachedRequest.response);
+  res.send(cachedRequest.responseBody);
 }
 
 async function fetchExternalAPIAndCacheResponse(req: express.Request, res: express.Response, serverConfig: Config): Promise<void> {
@@ -94,10 +101,8 @@ function sendResponse(res: express.Response, response: any): void {
 /**
  * While in HTTPS, returning the header content-length AND transfer-encoding throws an error.
  * It appears that it's normal, see [this](https://github.com/sindresorhus/got/discussions/1576#discussioncomment-263225)
- * @param headers 
- * @returns Array<string> the header keys we can return
  */
-function getCleanHeaderKeys(headers: any): Array<string> {
+function getCleanHeaderKeys(headers: CachedResponseHeader): Array<string> {
   const items = Object.keys(headers).filter(h => h === 'content-length' || 'transfer-encoding');
   if (items.length > 1) {
     return Object.keys(headers).filter(h => h !== 'transfer-encoding');

@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import { AxiosResponse } from "axios";
 import { Config } from "../interfaces/Config.interface";
 import { CachedRequest } from "../interfaces/CachedRequest.interface";
+import { StoredCachedRequest } from "../interfaces/StoredCachedRequest.interface";
 
 export class CacheHandler {
     constructor(
@@ -24,9 +25,9 @@ export class CacheHandler {
         const cache = JSON.parse(fs.readFileSync(cachePath, this.config.encoding));
         const cachedRequest = this.config.matchBy(this.request, cache);
         if (cachedRequest) {
-            this.parseCachedResponse(cachedRequest);
+            return this.parseCachedResponse(cachedRequest);
         }
-        return cachedRequest;
+        return null;
     }
 
     public saveCacheRequest(response: AxiosResponse) {
@@ -49,13 +50,24 @@ export class CacheHandler {
         fs.outputFileSync(cachePath, JSON.stringify(newCache, null, 4));
     }
 
-    private parseCachedResponse(cachedRequest: CachedRequest) {
-        if (cachedRequest.response && fs.existsSync(cachedRequest.response)) {
-            cachedRequest.response = JSON.parse(fs.readFileSync(cachedRequest.response, this.config.encoding));
+    private parseCachedResponse(storedCachedRequest: StoredCachedRequest): CachedRequest {
+        let cachedRequest = {} as CachedRequest;
+        Object.assign(cachedRequest, storedCachedRequest)
+        if (
+            storedCachedRequest.responseBody
+            && typeof storedCachedRequest.responseBody === 'string'
+            && fs.existsSync(storedCachedRequest.responseBody)
+        ) {
+            cachedRequest.responseBody = JSON.parse(fs.readFileSync(storedCachedRequest.responseBody, this.config.encoding));
         }
-        if (cachedRequest.headers && typeof cachedRequest.headers === 'string' && fs.existsSync(cachedRequest.headers)) {
-            cachedRequest.headers = JSON.parse(fs.readFileSync(cachedRequest.headers, this.config.encoding));
+        if (
+            storedCachedRequest.responseHeaders
+            && typeof storedCachedRequest.responseHeaders === 'string'
+            && fs.existsSync(storedCachedRequest.responseHeaders)
+        ) {
+            cachedRequest.responseHeaders = JSON.parse(fs.readFileSync(storedCachedRequest.responseHeaders, this.config.encoding));
         }
+        return cachedRequest;
     }
 
     private createResponseBodyFile(response: AxiosResponse) {

@@ -1,8 +1,12 @@
 export interface CachedRequest {
     method: string;
     url: string;
-    body?: any;
-    code?: number;
-    headers?: [key: string, value: string] | string;
-    response: any;
+    body: any;
+    code: number;
+    responseHeaders: CachedResponseHeader;
+    responseBody: any;
+}
+
+export interface CachedResponseHeader {
+    [key: string]: string;
 }
