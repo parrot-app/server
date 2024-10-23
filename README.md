@@ -81,7 +81,7 @@ That's it! You can even add files on the fly or edit those JSONs and call Parrot
 
 ## Why not just mock in the frontend?
 
-In a perfect world, I would mock all my API endpoints and go by my day. But if you're worked in any business context, you know how impossible this task can be. From one side, you have a backend that evolves with a separate team. And from another, the project manager asking you to ship your work ASAP.
+In a perfect world, I would mock all my API endpoints and go by my day. But if you've worked in any business context, you know how impossible this task can be. From one side, you have a backend that evolves with a separate team. And from another, the project manager asking you to ship your work ASAP.
 
 Parrot relives you from mocking your APIs and just keeps a copy of your expected API responses. What's better is that you can even change the responses to test your code and how the UI will react to those changes without having to change anything in your frontend code.
 
@@ -91,7 +91,7 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 
 ## Current limitations/planned improvements
 
-[ ] Corporate proxy is hit or miss
+[ ] Corporate proxy is hit or miss (Needs more testing, works for me at work)
 [ ] Compare request content and privelige responses with content rather than without
 [ ] Handles only JSON responses
 [ ] Error catching

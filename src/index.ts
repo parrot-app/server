@@ -1,28 +1,28 @@
 import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
+import https from 'https';
+import http from 'http';
+import fs from 'fs-extra';
+
 import { ServerConfig } from './config';
 import { logError, logIn, logOut, logSuccess } from './helpers/Logger';
 import { CacheHandler } from './handlers/Cache.handler';
 import { Config } from './interfaces/Config.interface';
 import { CertGenerator } from './helpers/CertGenerator';
-import https from 'https';
-import http from 'http';
-import fs from 'fs-extra';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 
-const cachePath = CacheHandler.init(ServerConfig);
+CacheHandler.init(ServerConfig);
 
 const agent = new https.Agent({  
   rejectUnauthorized: ServerConfig.rejectUnauthorized,
 });
 
 app.use(async (req, res, next) => {
-  const { method, url, headers, body } = req;
   const cachedRequest = getCachedRequest(req, res, ServerConfig);
 
   if (cachedRequest && !ServerConfig.bypassCache) {
@@ -91,6 +91,12 @@ function sendResponse(res: express.Response, response: any): void {
   res.send(response.data);
 }
 
+/**
+ * While in HTTPS, returning the header content-length AND transfer-encoding throws an error.
+ * It appears that it's normal, see [this](https://github.com/sindresorhus/got/discussions/1576#discussioncomment-263225)
+ * @param headers 
+ * @returns Array<string> the header keys we can return
+ */
 function getCleanHeaderKeys(headers: any): Array<string> {
   const items = Object.keys(headers).filter(h => h === 'content-length' || 'transfer-encoding');
   if (items.length > 1) {
@@ -99,6 +105,7 @@ function getCleanHeaderKeys(headers: any): Array<string> {
   return [];
 }
 
+// Make sure to generate the certificates before trying to start our server
 const serverKeysPaths = CertGenerator.generate(ServerConfig);
 
 let server: http.Server | https.Server | null = null;
@@ -110,6 +117,7 @@ if (ServerConfig.isHttps && serverKeysPaths) {
 } else {
   server = http.createServer(app);
 }
+
 server?.listen(ServerConfig.port, () => {
   console.log(`🦜 [ParrotJS Server] running on ${ServerConfig.host}:${ServerConfig.port}`);
   logSuccess(`External queries will be sent to: ${ServerConfig.baseUrl}`);
