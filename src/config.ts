@@ -7,12 +7,12 @@ import { StoredCachedRequest } from "./interfaces/StoredCachedRequest.interface"
 dotenv.config();
 
 class ParrotConfig implements Config {
-    port = process.env.PARROT_PORT ? Number(process.env.PARROT_PORT) : 3000;
+    port = process.env['PARROT_PORT'] ? Number(process.env['PARROT_PORT']) : 3000;
     cachePath = `${process.cwd()}/cache`;
     requestsCacheFileName = 'requests.json';
     encoding = 'utf8' as BufferEncoding;
-    baseUrl = process.env.API_BASE || 'http://localhost';
-    gracefulFail = (process.env.GRACEFUL_FAIL ? /true/.test(process.env.GRACEFUL_FAIL) : false) || true;
+    baseUrl = process.env['API_BASE'] || 'http://localhost';
+    gracefulFail = (process.env['GRACEFUL_FAIL'] ? /true/.test(process.env['GRACEFUL_FAIL']) : false) || true;
     bypassCache = process.argv.find(v => v === 'bypass') ? true : false;
     isHttps = this.baseUrl.includes('https') || false;
     host = `http${this.isHttps ? 's' : ''}://localhost`;

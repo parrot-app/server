@@ -26,7 +26,7 @@ export class CacheHandler {
     }
 
     public get cachedRequest(): CachedRequest | null {
-        const cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding)) as StoredCachedRequest[];
+        const cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding).toString()) as StoredCachedRequest[];
         if (cache.length > 0) {
             const cachedRequest = this.config.matchBy(this.request, cache);
             if (cachedRequest) {
@@ -40,16 +40,16 @@ export class CacheHandler {
         const responseFilePath = this.createResponseBodyFile(response);
         const responseHeadersFile = this.createResponseHeadersFile(response);
 
-        const cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding));
-        const newCache: CachedRequest[] = [
+        const cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding).toString()) as StoredCachedRequest[];
+        const newCache: StoredCachedRequest[] = [
             ...cache,
             {
                 method: this.request.method,
                 url: this.request.url,
                 body: this.request.body,
                 code: response.status,
-                responseHeaders: responseHeadersFile ? responseHeadersFile : undefined,
-                responseBody: responseFilePath ? responseFilePath : undefined,
+                responseHeaders: responseHeadersFile,
+                responseBody: responseFilePath,
             },
         ];
         fs.outputFileSync(this.cachePath, JSON.stringify(newCache, null, 4));
@@ -63,7 +63,7 @@ export class CacheHandler {
             && typeof storedCachedRequest.responseBody === 'string'
         ) {
             if (fs.existsSync(storedCachedRequest.responseBody)) {
-                cachedRequest.responseBody = JSON.parse(fs.readFileSync(storedCachedRequest.responseBody, this.config.encoding));
+                cachedRequest.responseBody = JSON.parse(fs.readFileSync(storedCachedRequest.responseBody, this.config.encoding).toString());
             } else {
                 this.cleanupRemovedEntries();
                 return null;
@@ -74,7 +74,7 @@ export class CacheHandler {
             && typeof storedCachedRequest.responseHeaders === 'string'
             && fs.existsSync(storedCachedRequest.responseHeaders)
         ) {
-            cachedRequest.responseHeaders = JSON.parse(fs.readFileSync(storedCachedRequest.responseHeaders, this.config.encoding));
+            cachedRequest.responseHeaders = JSON.parse(fs.readFileSync(storedCachedRequest.responseHeaders, this.config.encoding).toString());
         } else {
             this.cleanupRemovedEntries();
             return null;
@@ -91,9 +91,9 @@ export class CacheHandler {
         return filePath;
     }
 
-    private createResponseHeadersFile(response: AxiosResponse) {
+    private createResponseHeadersFile(response: AxiosResponse): string {
         if (!response.headers) {
-            return undefined
+            return ''
         }
         const filePath = `${this.config.cachePath}${this.request.url}_headers.json`
         fs.outputFileSync(filePath, JSON.stringify(response.headers, null, 4), this.config.encoding);
@@ -102,7 +102,7 @@ export class CacheHandler {
 
     private cleanupRemovedEntries() {
         logError('Some entries seem out of sync withe the cache files, cleaning up!')
-        let cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding)) as StoredCachedRequest[];
+        let cache = JSON.parse(fs.readFileSync(this.cachePath, this.config.encoding).toString()) as StoredCachedRequest[];
         if (cache.length > 0) {
             cache = cache.filter(item => {
                 if (

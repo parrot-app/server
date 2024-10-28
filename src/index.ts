@@ -17,6 +17,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 
+const parrotServer: {
+  server: http.Server | https.Server | null,
+  log: {
+    errors: string[],
+    warns: string[],
+    info: string[],
+  },
+  host: string,
+  target: string,
+} = {
+  server: null,
+  log: {
+    errors: [],
+    warns: [],
+    info: [],
+  },
+  host: '',
+  target: ''
+};
+
 CacheHandler.init(ServerConfig);
 
 const agent = new https.Agent({
@@ -24,7 +44,7 @@ const agent = new https.Agent({
 });
 
 app.use(async (req, res, next) => {
-  const cachedRequest = getCachedRequest(req, res, ServerConfig);
+  const cachedRequest = getCachedRequest(req, ServerConfig);
 
   if (cachedRequest && !ServerConfig.bypassCache) {
     return useCachedResponse(cachedRequest, res);
@@ -35,13 +55,13 @@ app.use(async (req, res, next) => {
   next();
 });
 
-function getCachedRequest(req: express.Request, res: express.Response, serverConfig: Config): CachedRequest | null {
-  const cacheHandler = new CacheHandler(req, res, serverConfig);
+function getCachedRequest(req: express.Request, serverConfig: Config): CachedRequest | null {
+  const cacheHandler = new CacheHandler(req, serverConfig);
   return cacheHandler.cachedRequest;
 }
 
 function useCachedResponse(cachedRequest: CachedRequest, res: express.Response): void {
-  logIn(`Using cached response for ${cachedRequest.method} ${cachedRequest.url}`);
+  parrotServer.log.info.push(`Using cached response for ${cachedRequest.method} ${cachedRequest.url}`);
 
   if (Object.keys(cachedRequest?.responseHeaders).length > 0) {
     const headerKeys = getCleanHeaderKeys(cachedRequest.responseHeaders);
@@ -49,7 +69,7 @@ function useCachedResponse(cachedRequest: CachedRequest, res: express.Response):
       if (
         headerKeys.find(k => key === k)
       ) {
-        res.setHeader(key, cachedRequest.responseHeaders[key]);
+        res.setHeader(key, cachedRequest.responseHeaders[key] || '');
       }
     });
   }
@@ -63,7 +83,7 @@ function useCachedResponse(cachedRequest: CachedRequest, res: express.Response):
 
 async function fetchExternalAPIAndCacheResponse(req: express.Request, res: express.Response, serverConfig: Config): Promise<void> {
   const externalUrl = `${serverConfig.baseUrl}${req.url}`;
-  logOut(`Fetching external API: ${externalUrl}`);
+  parrotServer.log.info.push(`Fetching external API: ${externalUrl}`);
 
   try {
     const response = await axios({
@@ -75,17 +95,17 @@ async function fetchExternalAPIAndCacheResponse(req: express.Request, res: expre
       httpsAgent: agent,
     });
 
-    saveCacheRequest(req, res, serverConfig, response);
+    saveCacheRequest(req, serverConfig, response);
     sendResponse(res, response);
 
   } catch (error) {
-    logError(`Error fetching external API: ${error}`);
+    parrotServer.log.errors.push(`Error fetching external API: ${error}`);
     res.status(500).send('Error fetching external API');
   }
 }
 
-function saveCacheRequest(req: express.Request, res: express.Response, serverConfig: Config, response: any): void {
-  const cacheHandler = new CacheHandler(req, res, serverConfig);
+function saveCacheRequest(req: express.Request, serverConfig: Config, response: any): void {
+  const cacheHandler = new CacheHandler(req, serverConfig);
   cacheHandler.saveCacheRequest(response);
 }
 
@@ -123,7 +143,11 @@ if (ServerConfig.isHttps && serverKeysPaths) {
   server = http.createServer(app);
 }
 
-server?.listen(ServerConfig.port, () => {
-  console.log(`🦜 [ParrotJS Server] running on ${ServerConfig.host}:${ServerConfig.port}`);
-  logSuccess(`External queries will be sent to: ${ServerConfig.baseUrl}`);
-});
+export function startParrot() {
+  server?.listen(ServerConfig.port, () => {
+    parrotServer.server = server;
+  });
+  parrotServer.host = `${ServerConfig.host}:${ServerConfig.port}`;
+  parrotServer.target = `${ServerConfig.baseUrl}`;
+  return parrotServer;
+}
