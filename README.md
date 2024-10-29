@@ -102,7 +102,7 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 [ ] WS and WSS protocol?
 [ ] GraphQL support?
 [ ] Proxy any kind of file based on mimetype?
-[ ] Add stats?
+[ ] Add stats? (ttfb with target server, diff, cache?)
 [ ] Add timestamps and random guids for requests
 [ ] Add log files
 

@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { Request, Response } from "express";
+import { Request } from "express";
 import { AxiosResponse } from "axios";
 
 import { Config } from "../interfaces/Config.interface";
@@ -11,7 +11,6 @@ export class CacheHandler {
     private cachePath = '';
     constructor(
         private request: Request,
-        private response: Response,
         private config: Config,
     ) {
         this.cachePath = `${this.config.cachePath}/${this.config.requestsCacheFileName}`;
