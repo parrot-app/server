@@ -67,10 +67,13 @@ export class ParrotServer extends EventEmitter {
     const serverKeysPaths = CertGenerator.generate(ServerConfig);
 
     if (ServerConfig.isHttps && serverKeysPaths) {
-      this.server = https.createServer({
-        key: fs.readFileSync(serverKeysPaths.key),
-        cert: fs.readFileSync(serverKeysPaths.cert),
-      }, this.app);
+      this.server = https.createServer(
+        {
+          key: fs.readFileSync(serverKeysPaths.key),
+          cert: fs.readFileSync(serverKeysPaths.cert),
+        },
+        this.app,
+      );
     } else {
       this.server = http.createServer(this.app);
     }
@@ -81,19 +84,27 @@ export class ParrotServer extends EventEmitter {
     headerKeys.forEach((key) => {
       res.setHeader(key, response.headers[key]);
     });
-  
+
     res.send(response.data);
   }
 
-  private saveCacheRequest(req: express.Request, serverConfig: Config, response: any): void {
+  private saveCacheRequest(
+    req: express.Request,
+    serverConfig: Config,
+    response: any,
+  ): void {
     const cacheHandler = new CacheHandler(req, serverConfig);
     cacheHandler.saveCacheRequest(response);
   }
 
-  private async fetchExternalAPIAndCacheResponse(req: express.Request, res: express.Response, serverConfig: Config): Promise<void> {
+  private async fetchExternalAPIAndCacheResponse(
+    req: express.Request,
+    res: express.Response,
+    serverConfig: Config,
+  ): Promise<void> {
     const externalUrl = `${serverConfig.baseUrl}${req.url}`;
-    this.emit(ParrotServerEventsEnum.LOG_INFO ,`[=>] Fetch: ${externalUrl}`);
-  
+    this.emit(ParrotServerEventsEnum.LOG_INFO, `[=>] Fetch: ${externalUrl}`);
+
     try {
       const response = await axios({
         method: req.method,
@@ -103,40 +114,42 @@ export class ParrotServer extends EventEmitter {
         proxy: false,
         httpsAgent: this.agent || undefined,
       });
-  
+
       this.saveCacheRequest(req, serverConfig, response);
       this.sendResponse(res, response);
-  
     } catch (error) {
       this.emit(ParrotServerEventsEnum.LOG_ERROR, `[X] Error fetching: ${error}`);
       res.status(500).send('[ParrotJS] Error fetching external API');
     }
   }
 
-  private getCachedRequest(req: express.Request, serverConfig: Config): CachedRequest | null {
+  private getCachedRequest(
+    req: express.Request,
+    serverConfig: Config,
+  ): CachedRequest | null {
     const cacheHandler = new CacheHandler(req, serverConfig);
     return cacheHandler.cachedRequest;
   }
-  
+
   private useCachedResponse(cachedRequest: CachedRequest, res: express.Response): void {
-    this.emit(ParrotServerEventsEnum.LOG_INFO, `[#] Using cached response for ${cachedRequest.method} ${cachedRequest.url}`);
-  
+    this.emit(
+      ParrotServerEventsEnum.LOG_INFO,
+      `[#] Using cached response for ${cachedRequest.method} ${cachedRequest.url}`,
+    );
+
     if (Object.keys(cachedRequest?.responseHeaders).length > 0) {
       const headerKeys = GetCleanHeaderKeys(cachedRequest.responseHeaders);
-      Object.keys(cachedRequest?.responseHeaders).forEach(key => {
-        if (
-          headerKeys.find(k => key === k)
-        ) {
+      Object.keys(cachedRequest?.responseHeaders).forEach((key) => {
+        if (headerKeys.find((k) => key === k)) {
           res.setHeader(key, cachedRequest.responseHeaders[key] || '');
         }
       });
     }
-  
+
     if (cachedRequest.code) {
       res.statusCode = cachedRequest.code;
     }
-  
+
     res.send(cachedRequest.responseBody);
   }
-  
 }

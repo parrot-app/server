@@ -13,7 +13,10 @@ import { nanoid } from 'nanoid';
 export class CacheHandler {
   private cachePath = '';
   private static serverInstance: http.Server | https.Server | null = null;
-  constructor(private request: Request, private config: Config) {
+  constructor(
+    private request: Request,
+    private config: Config,
+  ) {
     this.cachePath = `${this.config.cachePath}/${this.config.requestsCacheFileName}`;
   }
 

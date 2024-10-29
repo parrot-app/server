@@ -4,9 +4,10 @@ Frontend development made easy.
 
 ## What is ParrotJS?
 
-ParrotJS is a *"cache"* server that will remember your frontend app requests and respond to them with the same way your backend would.
+ParrotJS is a _"cache"_ server that will remember your frontend app requests and respond to them with the same way your backend would.
 
 Suppose we have the following communication flow:
+
 ```text
 
 [Frontend] <=> [Backend]
@@ -23,20 +24,21 @@ If we add ParrotJS to the mix we would now have the following flow:
 
 ```
 
-ParrotJS will pretend to be your Backend by responding with the same headers and body for each type of your requests. If your backend is down/unreachable/offline you can keep working because ParrotJS will still *parrot* the same responses it's keeping in cache.
+ParrotJS will pretend to be your Backend by responding with the same headers and body for each type of your requests. If your backend is down/unreachable/offline you can keep working because ParrotJS will still _parrot_ the same responses it's keeping in cache.
 
 ## Motivation
 
-If you're a Frontend developer, like me. You've sureley had to deal with some kind of backend API. The biggest hurdle is usually to run that backend API or call it remotley. This is where usually things become less *"standard"* and you find youself in one of those situations :
+If you're a Frontend developer, like me. You've sureley had to deal with some kind of backend API. The biggest hurdle is usually to run that backend API or call it remotley. This is where usually things become less _"standard"_ and you find youself in one of those situations :
+
 - Run the backend locally in your machine and call it locally
 - Call a remote backend in a staging server for example
 - Call the live server (yes, some teams do that for some reason)
 - Run a Docker container with the backend
 - Etc...
-In all these cases, you find yourself at the mercy of the backend. If it's running locally, your machine is dying with so many resources reserved for the backend app.
-If on the other hand you're calling a remote API. It takes a network issue or a codebase update to break or slow down your work.
-Another major issue is the API returned data not being consistent with your current task (new data added, data structure changes etc).
-And finally, how all of this makes things hard to debug and test quickly your work.
+  In all these cases, you find yourself at the mercy of the backend. If it's running locally, your machine is dying with so many resources reserved for the backend app.
+  If on the other hand you're calling a remote API. It takes a network issue or a codebase update to break or slow down your work.
+  Another major issue is the API returned data not being consistent with your current task (new data added, data structure changes etc).
+  And finally, how all of this makes things hard to debug and test quickly your work.
 
 ## What ParrotJS can do for you?
 
@@ -58,20 +60,22 @@ First you'll configure your Parrot. Second you'll point your frontend to Parrot.
 6. Note how Parrot is creating a `requests.json` file and subfolders with `*_body.json` and `*_headers.json` files.
 
 Now let's understand how you can use all this at your advantage. Let's say that you have a simple `GET /user/ID_0029`:
+
 - Under the folder `~workspace/parrot-my-cool-app/cache/` you'll notice a `requests.json`. It contains a stringified JSON array of all your intercepted requests. In this case you'll find an entry like the following:
 
 ```json
 [
-    {
-        "method": "GET",
-        "url": "/api/v1/user",
-        "body": {},
-        "code": 200,
-        "headers": "cache/user/ID_0029_headers.json",
-        "response": "cache/user/ID_0029_body.json"
-    }
+  {
+    "method": "GET",
+    "url": "/api/v1/user",
+    "body": {},
+    "code": 200,
+    "headers": "cache/user/ID_0029_headers.json",
+    "response": "cache/user/ID_0029_body.json"
+  }
 ]
 ```
+
 - Each request will be indexed in the `requests.json` file
 - Each request will point to a different `*_headers.json` and `*_body.json`
   - Headers will contain the response headers of your API, useful if for example you're using the headers to send important frontend data

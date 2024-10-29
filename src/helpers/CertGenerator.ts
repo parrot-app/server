@@ -4,8 +4,8 @@ import { generate } from 'selfsigned';
 
 export class CertGenerator {
   public static generate(config: Config): {
-    key: string,
-    cert: string,
+    key: string;
+    cert: string;
   } | null {
     try {
       const keyPath = `${config.cachePath}/ssl/server.key`;
@@ -30,7 +30,7 @@ export class CertGenerator {
           cert: certPath,
         };
       }
-    } catch (error) { }
+    } catch (error) {}
     return null;
   }
 
@@ -41,4 +41,3 @@ export class CertGenerator {
     return { pemCert: pems.cert, pemKey: pems.private };
   }
 }
-
