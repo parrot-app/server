@@ -64,7 +64,7 @@ Now let's understand how you can use all this at your advantage. Let's say that 
 [
     {
         "method": "GET",
-        "url": "/api/v1/referentiel/coordination/statuts",
+        "url": "/api/v1/user",
         "body": {},
         "code": 200,
         "headers": "cache/user/ID_0029_headers.json",
