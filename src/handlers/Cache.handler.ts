@@ -69,7 +69,7 @@ export class CacheHandler {
   private parseCachedResponse(
     storedCachedRequest: StoredCachedRequest,
   ): CachedRequest | null {
-    let cachedRequest = {} as CachedRequest;
+    const cachedRequest = {} as CachedRequest;
     Object.assign(cachedRequest, storedCachedRequest);
     if (
       storedCachedRequest.responseBody &&
