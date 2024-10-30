@@ -7,6 +7,7 @@ const config: webpack.Configuration = {
   target: 'node',
   mode: 'production',
   entry: `./src/index.ts`,
+  // Fix blessed not working when bundled https://github.com/vercel/pkg/issues/530
   externals: {
     blessed: 'commonjs blessed',
   },
@@ -23,6 +24,7 @@ const config: webpack.Configuration = {
       },
     ],
   },
+  // Ignore two problematic dependencies to fix a build issue
   plugins: [
     new webpack.IgnorePlugin({
       resourceRegExp: /pty.js/,
