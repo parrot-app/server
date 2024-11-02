@@ -40,7 +40,10 @@ class ParrotConfig implements Config {
    * @param cache the whole cache of stored requests
    * @returns the entry of cached request or null
    */
-  matchBy = (request: Request, cache: Array<StoredCachedRequest>): StoredCachedRequest | null => {
+  matchBy = (
+    request: Request,
+    cache: Array<StoredCachedRequest>,
+  ): StoredCachedRequest | null => {
     const cachedRequest = cache.find(
       (cReq: StoredCachedRequest) =>
         cReq.method === request.method && cReq.url === request.url,
