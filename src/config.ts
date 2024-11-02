@@ -1,4 +1,3 @@
-import { CachedRequest } from './interfaces/CachedRequest.interface';
 import { Config } from './interfaces/Config.interface';
 import { Request } from 'express';
 import dotenv from 'dotenv';
@@ -29,7 +28,19 @@ class ParrotConfig implements Config {
         protocol: 'http',
     }; */
   proxy = false as const;
-  matchBy = (request: Request, cache: Array<StoredCachedRequest>) => {
+  /**
+   * Customize how to tell Parrot that the request should be served from the cache.
+   * Parrot will cache any successful requests without asking. This method will tell Parrot
+   * how to match a given frontend request with a cache request. The below function does this
+   * *naively* by just comparing the method and request url.
+   * Usually it does the job, but for a lot of apps, you might have more specific things to do
+   * such as comparing the content of a POST body and so on.
+   * This function is your entry point to customize how Parrot should handle things for you.
+   * @param request The frontend client's request
+   * @param cache the whole cache of stored requests
+   * @returns the entry of cached request or null
+   */
+  matchBy = (request: Request, cache: Array<StoredCachedRequest>): StoredCachedRequest | null => {
     const cachedRequest = cache.find(
       (cReq: StoredCachedRequest) =>
         cReq.method === request.method && cReq.url === request.url,

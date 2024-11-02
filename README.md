@@ -28,7 +28,7 @@ ParrotJS will pretend to be your Backend by responding with the same headers and
 
 ## Motivation
 
-If you're a Frontend developer, like me. You've sureley had to deal with some kind of backend API. The biggest hurdle is usually to run that backend API or call it remotley. This is where usually things become less _"standard"_ and you find youself in one of those situations :
+If you're a Frontend developer, like me. You've surely had to deal with some kind of backend API. The biggest hurdle is usually to run that backend API or call it remotely. This is where usually things become less _"standard"_ and you find yourself in one of those situations :
 
 - Run the backend locally in your machine and call it locally
 - Call a remote backend in a staging server for example
@@ -44,7 +44,7 @@ If you're a Frontend developer, like me. You've sureley had to deal with some ki
 
 ParrotJS is firstly a debug tool. Its main purpose is to be as transparent of a tool as possible. Something you don't really think about only when you need something **specific**.
 
-When you start ParrotJS the first time, it will just repeat whatever your backend server does. Hence the name "Parrot". Every request and response is kept in cache and ParrotJS will build its own version of cache for you. If your frontend tries to request the same resource (and with some criterias you can learn about down below), ParrotJS will take over and return that response without hitting the backend.
+When you start ParrotJS the first time, it will just repeat whatever your backend server does. Hence the name "Parrot". Every request and response is kept in cache and ParrotJS will build its own version of cache for you. If your frontend tries to request the same resource (and with some criteria you can learn about down below), ParrotJS will take over and return that response without hitting the backend.
 
 Now let's suppose you need to change the server's response to test something. If your request was cached by ParrotJS. You will be able to change that response just by changing the corresponding JSON file containing the request body and headers.
 
@@ -96,8 +96,8 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 ## Current limitations/planned improvements
 
 - [ ] Corporate proxy is hit or miss (Needs more testing, works for me at work)
-- [ ] Compare request content and privelige responses with content rather than without
-- [ ] Handles only JSON responses
+- [ ] Compare request content and privilege responses with content rather than without
+- [ ] Handles only JSON responses: Parrot handles all kind of responses but serializes them into JSON, not sure it's the best format tough
 - [ ] Error catching
 - [ ] Parse and call OpenAPI files?
 - [ ] Smart error catching (for example if `/user/ID_0029` is cached, respond with the same data for `/user/ID_0030` and increment relevant items)
@@ -107,9 +107,10 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 - [ ] GraphQL support?
 - [ ] Proxy any kind of file based on mimetype?
 - [ ] Add stats? (ttfb with target server, diff, cache?)
-- [ ] Add timestamps and random guids for requests
+- [x] Add timestamps and random IDs for requests
 - [ ] Add log files
+- [ ] Visual/GUI/Web-server frontend tool?
 
 ## Contribute
 
-This project is an idea I want to share with the world to make developement easier for all of us. If you have a suggestion/idea, I will be very happy to communicate with you and improve this small piece of software.
+This project is an idea I want to share with the world to make development easier for all of us. If you have a suggestion/idea, I will be very happy to communicate with you and improve this small piece of software.
