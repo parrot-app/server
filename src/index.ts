@@ -111,3 +111,20 @@ screen.key(['escape', 'q', 'C-c'], () => {
   );
   parrotServerInstance.server?.close();
 });
+
+screen.key(['i', 'I'], () => {
+  let interceptStateMessage = `[!] Intercept mode is `;
+  parrotServerInstance.bypassCache = !parrotServerInstance.bypassCache;
+  if (
+    parrotServerInstance.bypassCache
+  ) {
+    interceptStateMessage += '{yellow-bg}{black-fg}DISABLED !{/}';
+  } else {
+    interceptStateMessage += '{green-bg}{black-fg}ENABLED !{/}';
+  }
+  addContentLine(
+    `{bold}${interceptStateMessage}{/}`,
+    content,
+    screen,
+  );
+})

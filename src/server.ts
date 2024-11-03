@@ -19,6 +19,14 @@ export class ParrotServer extends EventEmitter {
   public target = '';
   public server: http.Server | https.Server | null = null;
 
+  public set bypassCache(value: boolean) {
+    ServerConfig.bypassCache = value;
+  }
+
+  public get bypassCache(): boolean {
+    return ServerConfig.bypassCache;
+  }
+
   private app = express();
   private agent: https.Agent | null = null;
 
@@ -50,7 +58,7 @@ export class ParrotServer extends EventEmitter {
     this.app.use(async (req, res, next) => {
       const cachedRequest = this.getCachedRequest(req, ServerConfig);
 
-      if (cachedRequest && !ServerConfig.bypassCache) {
+      if (cachedRequest && !this.bypassCache) {
         return this.useCachedResponse(cachedRequest, res);
       } else {
         await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig);
