@@ -27,6 +27,10 @@ export class ParrotServer extends EventEmitter {
     return ServerConfig.bypassCache;
   }
 
+  public get serverConfig(): Config {
+    return ServerConfig;
+  }
+
   private app = express();
   private agent: https.Agent | null = null;
 

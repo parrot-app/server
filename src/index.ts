@@ -1,6 +1,7 @@
 import blessed from 'blessed';
 import { ParrotServer } from './server';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
+import { OrphanFilesHandler } from './handlers/OrphanFiles.handler';
 
 const parrotServerInstance = new ParrotServer();
 
@@ -121,4 +122,20 @@ screen.key(['i', 'I'], () => {
     interceptStateMessage += '{green-bg}{black-fg}ENABLED !{/}';
   }
   addContentLine(`{bold}${interceptStateMessage}{/}`, content, screen);
+});
+
+screen.key(['c', 'C'], () => {
+  const cleanupMessage = `[!] Cleanup orphan files... `;
+  const orphanFilesHandler = new OrphanFilesHandler(parrotServerInstance.serverConfig);
+  orphanFilesHandler.on('Files', (files: Array<string>) => {
+    addContentLine(`{bold}${cleanupMessage}{/}`, content, screen);
+    if (files.length > 0) {
+      files.forEach(f => {
+        addContentLine(`{bold}File path: ${f}{/}`, content, screen);
+      })  
+    } else {
+      addContentLine(`{bold}[i] No files to cleanup.{/}`, content, screen);
+    }
+  });
+  orphanFilesHandler.cleanFiles();
 });
