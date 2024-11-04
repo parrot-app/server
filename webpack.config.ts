@@ -41,6 +41,7 @@ const config: webpack.Configuration = {
       '@src': path.resolve(__dirname, 'src'),
     },
   },
+  devtool: 'source-map',
 };
 
 export default config;

@@ -130,9 +130,9 @@ screen.key(['c', 'C'], () => {
   orphanFilesHandler.on('Files', (files: Array<string>) => {
     addContentLine(`{bold}${cleanupMessage}{/}`, content, screen);
     if (files.length > 0) {
-      files.forEach(f => {
+      files.forEach((f) => {
         addContentLine(`{bold}File path: ${f}{/}`, content, screen);
-      })  
+      });
     } else {
       addContentLine(`{bold}[i] No files to cleanup.{/}`, content, screen);
     }
