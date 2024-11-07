@@ -1,5 +1,5 @@
 import express from 'express';
-import axios from 'axios';
+import axios, { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import cors from 'cors';
 import https from 'https';
 import http from 'http';
@@ -13,6 +13,8 @@ import { CachedRequest } from './interfaces/CachedRequest.interface';
 import { EventEmitter } from 'stream';
 import { GetCleanHeaderKeys } from './helpers/GetCleanHeaderKeys';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
+
+https.globalAgent.options.rejectUnauthorized = false;
 
 export class ParrotServer extends EventEmitter {
   public host = '';
@@ -91,8 +93,9 @@ export class ParrotServer extends EventEmitter {
     }
   }
 
-  private sendResponse(res: express.Response, response: any): void {
-    const headerKeys = GetCleanHeaderKeys(response.headers);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private sendResponse(res: express.Response, response: AxiosResponse<any, any>): void {
+    const headerKeys = GetCleanHeaderKeys(response.headers as AxiosResponseHeaders);
     headerKeys.forEach((key) => {
       res.setHeader(key, response.headers[key]);
     });
@@ -103,7 +106,8 @@ export class ParrotServer extends EventEmitter {
   private saveCacheRequest(
     req: express.Request,
     serverConfig: Config,
-    response: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    response: AxiosResponse<any, any>,
   ): void {
     const cacheHandler = new CacheHandler(req, serverConfig);
     cacheHandler.saveCacheRequest(response);
@@ -116,9 +120,11 @@ export class ParrotServer extends EventEmitter {
   ): Promise<void> {
     const externalUrl = `${serverConfig.baseUrl}${req.url}`;
     this.emit(ParrotServerEventsEnum.LOG_INFO, `[=>] Fetch: ${externalUrl}`);
+    req.headers.host = undefined;
 
     try {
-      const response = await axios({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await axios<any>({
         method: req.method,
         url: externalUrl,
         headers: req.headers,
@@ -131,7 +137,7 @@ export class ParrotServer extends EventEmitter {
       this.sendResponse(res, response);
     } catch (error) {
       this.emit(ParrotServerEventsEnum.LOG_ERROR, `[X] Error fetching: ${error}`);
-      res.status(500).send('[ParrotJS] Error fetching external API');
+      res.status(500).send(error);
     }
   }
 

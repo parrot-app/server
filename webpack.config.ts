@@ -14,6 +14,7 @@ const config: webpack.Configuration = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js',
+    devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
   module: {
     rules: [
@@ -41,7 +42,7 @@ const config: webpack.Configuration = {
       '@src': path.resolve(__dirname, 'src'),
     },
   },
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 };
 
 export default config;
