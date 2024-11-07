@@ -129,6 +129,7 @@ screen.key(['i', 'I'], () => {
 });
 
 screen.key(['c', 'C'], () => {
+  addContentLine(`{bold}[i] Try to clean...{/}`, content, screen);
   const cleanupMessage = `[!] Cleanup orphan files... `;
   const orphanFilesHandler = new OrphanFilesHandler(parrotServerInstance.serverConfig);
   orphanFilesHandler.on('Files', (files: Array<string>) => {
