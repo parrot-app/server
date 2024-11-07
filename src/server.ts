@@ -127,7 +127,9 @@ export class ParrotServer extends EventEmitter {
         httpsAgent: this.agent || undefined,
       });
 
-      this.saveCacheRequest(req, serverConfig, response);
+      if (!this.bypassCache) {
+        this.saveCacheRequest(req, serverConfig, response);
+      }
       this.sendResponse(res, response);
     } catch (error) {
       this.emit(ParrotServerEventsEnum.LOG_ERROR, `[X] Error fetching: ${error}`);
