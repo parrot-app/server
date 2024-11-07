@@ -97,8 +97,8 @@ function addContentLine(
   screen: blessed.Widgets.Screen,
 ) {
   const maxContentLines = Math.floor(Number(content.height));
-  if (content.getLines().length > maxContentLines) {
-    content.shiftLine(1);
+  if (content.getLines().length > maxContentLines - 2) {
+    content.shiftLine(1)
   }
   content.pushLine(text);
   screen.render();
