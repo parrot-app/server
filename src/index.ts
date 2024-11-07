@@ -98,7 +98,7 @@ function addContentLine(
 ) {
   const maxContentLines = Math.floor(Number(content.height));
   if (content.getLines().length > maxContentLines - 2) {
-    content.shiftLine(1)
+    content.shiftLine(1);
   }
   content.pushLine(text);
   screen.render();
