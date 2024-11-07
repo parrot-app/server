@@ -7,7 +7,7 @@ import { CachedResponseHeader } from '../interfaces/CachedRequest.interface';
  * [this](https://github.com/sindresorhus/got/discussions/1576#discussioncomment-263225)
  */
 export const GetCleanHeaderKeys = (
-  headers: AxiosResponseHeaders | CachedResponseHeader
+  headers: AxiosResponseHeaders | CachedResponseHeader,
 ): Array<string> => {
   const items = Object.keys(headers).filter(
     (h) => h === 'content-length' || 'transfer-encoding',
