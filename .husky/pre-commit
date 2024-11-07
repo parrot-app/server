@@ -1,2 +1,1 @@
-#!/bin/bash
-npm run format
+git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath "{}"' .
