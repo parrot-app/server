@@ -90,7 +90,6 @@ parrotServerInstance.on(ParrotServerEventsEnum.SERVER_STOP, () => {
   }, 2000);
 });
 
-// TODO: Not sure if this is the way to do good scroll. I'll check it again later on
 function addContentLine(
   text: string,
   content: blessed.Widgets.BoxElement,
@@ -118,9 +117,14 @@ screen.key(['i', 'I'], () => {
   parrotServerInstance.bypassCache = !parrotServerInstance.bypassCache;
   if (parrotServerInstance.bypassCache) {
     interceptStateMessage += '{yellow-bg}{black-fg}DISABLED !{/}';
+    header.style.bg = 'yellow';
+    header.style.fg = 'black';
   } else {
     interceptStateMessage += '{green-bg}{black-fg}ENABLED !{/}';
+    header.style.bg = 'green';
+    header.style.fg = 'black';
   }
+  screen.render();
   addContentLine(`{bold}${interceptStateMessage}{/}`, content, screen);
 });
 
