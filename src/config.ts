@@ -8,6 +8,7 @@ dotenv.config();
 class ParrotConfig implements Config {
   port = process.env['PARROT_PORT'] ? Number(process.env['PARROT_PORT']) : 3000;
   cachePath = `${process.cwd()}/cache`;
+  logPath = `${process.cwd()}/logs`;
   requestsCacheFileName = 'requests.json';
   encoding = 'utf8' as BufferEncoding;
   baseUrl = process.env['API_BASE'] || 'http://localhost';
@@ -28,6 +29,7 @@ class ParrotConfig implements Config {
         protocol: 'http',
     }; */
   proxy = false as const;
+  logLevel = process.env['LOG'] ? process.env['LOG'].toLowerCase() : 'error';
   /**
    * Customize how to tell Parrot that the request should be served from the cache.
    * Parrot will cache any successful requests without asking. This method will tell Parrot

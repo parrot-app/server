@@ -6,6 +6,7 @@ export interface Config {
   port: number;
   host: string;
   cachePath: string;
+  logPath: string;
   requestsCacheFileName: string;
   encoding: BufferEncoding;
   baseUrl: string;
@@ -14,6 +15,7 @@ export interface Config {
   isHttps: boolean;
   rejectUnauthorized: boolean;
   proxy: false | AxiosProxyConfig | undefined;
+  logLevel: string;
   matchBy: (
     request: Request,
     cache: Array<StoredCachedRequest>,
