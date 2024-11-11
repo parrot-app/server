@@ -5,7 +5,7 @@ import https from 'https';
 import http from 'http';
 import fs from 'fs-extra';
 
-import { ServerConfig } from './config';
+import { ServerConfig } from './helpers/ParrotConfig';
 import { CacheHandler } from './handlers/Cache.handler';
 import { Config } from './interfaces/Config.interface';
 import { CertGenerator } from './helpers/CertGenerator';

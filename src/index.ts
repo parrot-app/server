@@ -3,7 +3,7 @@ import { ParrotServer } from './server';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
 import { OrphanFilesHandler } from './handlers/OrphanFiles.handler';
 import winston from 'winston';
-import { ServerConfig } from './config';
+import { ServerConfig } from './helpers/ParrotConfig';
 
 const logger = winston.createLogger({
   level: ServerConfig.logLevel,
