@@ -6,6 +6,24 @@ import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface
 dotenv.config();
 
 class ParrotConfig implements Config {
+
+  // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
+  requireDynamically(path: string) {
+    return eval(`require('${path}');`);
+  }
+
+  parseCustomUserFn = () => {
+    try {
+      const customUserFn = this.requireDynamically('./matchby.js');
+      return customUserFn;
+    } catch (e) {
+      // TODO: load config first then loger or logger in minimum mode then config then logger
+      // logger.debug('No matchby.js file found, using defaults.', e);
+    }
+  }
+
+  public customUserFn = this.parseCustomUserFn();
+
   safeCachePath = (value: string | undefined, defaultValue: string): string => {
     if (value) {
       if (value.includes(':/')) {
@@ -23,7 +41,9 @@ class ParrotConfig implements Config {
     return `${process.cwd()}/${defaultValue}`;
   };
 
-  port = Number(process.env['PARROT_PORT']) || 3000;
+  httpsPort = Number(process.env['PARROT_HTTPS_PORT']) || 9443;
+
+  httpPort = Number(process.env['PARROT_HTTP_PORT']) || 1120;
 
   cachePath = this.safeCachePath(process.env['PARROT_CACHEPATH'], 'cache');
 
@@ -47,7 +67,7 @@ class ParrotConfig implements Config {
   proxy = false as const;
   logLevel =
     process.env['PARROT_LOG']
-    ? process.env['PARROT_LOG'].toLowerCase() : 'error';
+      ? process.env['PARROT_LOG'].toLowerCase() : 'error';
   matchBy = (
     request: Request,
     cache: Array<StoredCachedRequest>,

@@ -13,13 +13,15 @@ import { CachedRequest } from './interfaces/CachedRequest.interface';
 import { EventEmitter } from 'stream';
 import { GetCleanHeaderKeys } from './helpers/GetCleanHeaderKeys';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
+import { logger } from './helpers/Logger';
 
 https.globalAgent.options.rejectUnauthorized = false;
 
 export class ParrotServer extends EventEmitter {
   public host = '';
   public target = '';
-  public server: http.Server | https.Server | null = null;
+  public server: http.Server | null = null;
+  public secureServer: https.Server | null = null;
 
   public set bypassCache(value: boolean) {
     ServerConfig.bypassCache = value;
@@ -39,14 +41,21 @@ export class ParrotServer extends EventEmitter {
   constructor() {
     super();
     this.init();
-    this.server?.listen(ServerConfig.port, () => {
-      this.emit(ParrotServerEventsEnum.LOG_SUCCESS, '[OK] ParrotJS server is running.');
+    this.server?.listen(ServerConfig.httpPort, () => {
+      this.emit(ParrotServerEventsEnum.LOG_SUCCESS, `[OK] ParrotJS {bold}http{/bold} server is running on port: ${ServerConfig.httpPort}`);
       this.emit(ParrotServerEventsEnum.SERVER_LISTEN);
     });
     this.server?.on('close', () => {
       this.emit(ParrotServerEventsEnum.SERVER_STOP);
     });
-    this.host = `${ServerConfig.host}:${ServerConfig.port}`;
+    this.secureServer?.listen(ServerConfig.httpsPort, () => {
+      this.emit(ParrotServerEventsEnum.LOG_SUCCESS, `[OK] ParrotJS {bold}https{/bold} server is running on port: ${ServerConfig.httpsPort}`);
+      this.emit(ParrotServerEventsEnum.SERVER_LISTEN);
+    });
+    this.secureServer?.on('close', () => {
+      this.emit(ParrotServerEventsEnum.SERVER_STOP);
+    });
+    this.host = `${ServerConfig.host}:${ServerConfig.httpPort}`;
     this.target = `${ServerConfig.baseUrl}`;
   }
 
@@ -81,13 +90,16 @@ export class ParrotServer extends EventEmitter {
     const serverKeysPaths = CertGenerator.generate(ServerConfig);
 
     if (ServerConfig.isHttps && serverKeysPaths) {
-      this.server = https.createServer(
+      this.secureServer = https.createServer(
         {
           key: fs.readFileSync(serverKeysPaths.key),
           cert: fs.readFileSync(serverKeysPaths.cert),
         },
         this.app,
       );
+      if (ServerConfig.httpPort) {
+        this.server = http.createServer(this.app);
+      }
     } else {
       this.server = http.createServer(this.app);
     }
@@ -123,6 +135,15 @@ export class ParrotServer extends EventEmitter {
     req.headers.host = undefined;
 
     try {
+      // TODO: ensure typeof function
+      if (serverConfig.customUserFn?.onBeforeRequest) {
+        try {
+          req = serverConfig.customUserFn.onBeforeRequest(req);
+          logger.debug(`Successfully called custom 'onBeforeRequest()`, req);
+        } catch (e) {
+          logger.error(`Error when trying to use custom 'onBeforeRequest`, e);
+        }
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await axios<any>({
         method: req.method,

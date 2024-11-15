@@ -3,7 +3,8 @@ import { Request } from 'express';
 import { StoredCachedRequest } from './StoredCachedRequest.interface';
 
 export interface Config {
-  port: number;
+  httpsPort: number;
+  httpPort: number;
   host: string;
   cachePath: string;
   logPath: string;
@@ -20,4 +21,18 @@ export interface Config {
     request: Request,
     cache: Array<StoredCachedRequest>,
   ) => StoredCachedRequest | null;
+  customUserFn: {
+    matchBy: (undefined | (
+      (
+        request: Request,
+        cache: Array<StoredCachedRequest>,
+      ) => StoredCachedRequest | null
+    )),
+    onBeforeRequest: (undefined | (
+      (req: Express.Request)
+      // TODO: change type to express.request
+        => any
+    )
+    ),
+  }
 }

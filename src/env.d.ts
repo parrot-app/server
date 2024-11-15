@@ -1,8 +1,9 @@
 // env.d.ts
 interface EnvConfig {
-  PARROT_PORT: number;
+  PARROT_HTTPS_PORT: number;
   PARROT_API_BASE: string;
   PARROT_GRACEFUL_FAIL: string;
+  PARROT_HTTP_PORT: number;
   PARROT_CACHEPATH: string;
   PARROT_LOG: string;
   PARROT_LOGPATH: string;

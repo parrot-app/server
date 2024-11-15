@@ -1,17 +1,14 @@
-import colors from 'colors';
+import winston from 'winston';
+import { ServerConfig } from './ParrotConfig';
 
-export const logError = (message: string) => {
-  console.error(colors.red(`[E!] ${message}`));
-};
+export const logger = winston.createLogger({
+  level: ServerConfig.logLevel,
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({
+      dirname: ServerConfig.logPath,
+    }),
+  ],
+});
 
-export const logSuccess = (message: string) => {
-  console.log(colors.green(`[✓] ${message}`));
-};
-
-export const logIn = (message: string) => {
-  console.log(colors.cyan(`[➡] ${message}`));
-};
-
-export const logOut = (message: string) => {
-  console.log(colors.cyan(`[⬅] ${message}`));
-};
+logger.log('debug', 'Logger configured and ready.');

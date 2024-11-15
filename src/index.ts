@@ -2,20 +2,7 @@ import blessed from 'blessed';
 import { ParrotServer } from './server';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
 import { OrphanFilesHandler } from './handlers/OrphanFiles.handler';
-import winston from 'winston';
-import { ServerConfig } from './helpers/ParrotConfig';
-
-const logger = winston.createLogger({
-  level: ServerConfig.logLevel,
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({
-      dirname: ServerConfig.logPath,
-    }),
-  ],
-});
-
-logger.log('debug', 'Logger configured and ready.');
+import { logger } from './helpers/Logger';
 
 try {
   const parrotServerInstance = new ParrotServer();
@@ -33,7 +20,7 @@ try {
     left: 0,
     width: '100%',
     height: 1,
-    content: `ParrotJS - ${parrotServerInstance.host} => ${parrotServerInstance.target}`,
+    content: `ParrotJS - ${parrotServerInstance.host}${parrotServerInstance.serverConfig.httpsPort ? '[s]:'+parrotServerInstance.serverConfig.httpsPort : ''} => ${parrotServerInstance.target}`,
     style: {
       fg: 'white',
       bg: 'blue',

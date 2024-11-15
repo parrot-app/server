@@ -14,3 +14,8 @@ function matchBy(request, cache) {
   );
   return cachedRequest || null;
 }
+
+function onBeforeRequest(request) {
+  request.headers['authorization'] = 'Bearer ';
+  return request;
+}
