@@ -50,7 +50,7 @@ try {
     left: 0,
     width: '100%',
     height: 1,
-    content: 'q: [Q]uit | i: [I]ntercept',
+    content: 'q: [Q]uit | i: [I]ntercept | o: [O]verride | c: [C]lean orphans',
     style: {
       fg: 'white',
       bg: 'blue',
@@ -129,21 +129,31 @@ try {
   });
 
   screen.key(['c', 'C'], () => {
-    logger.log('debug', `Starting response files cleanup.`);
-    addContentLine(`{bold}[i] Try to clean...{/}`, content, screen);
-    const cleanupMessage = `[!] Cleanup orphan files... `;
+    logger.log('debug', `Starting orphan response files cleanup.`);
+    addContentLine(`{bold}[i] Starting orphan response files cleanup.{/}`, content, screen);
     const orphanFilesHandler = new OrphanFilesHandler(parrotServerInstance.serverConfig);
-    orphanFilesHandler.on('Files', (files: Array<string>) => {
-      addContentLine(`{bold}${cleanupMessage}{/}`, content, screen);
-      if (files.length > 0) {
-        files.forEach((f) => {
-          addContentLine(`{bold}File path: ${f}{/}`, content, screen);
-        });
-      } else {
-        addContentLine(`{bold}[i] No files to cleanup.{/}`, content, screen);
-      }
+    orphanFilesHandler.on(ParrotServerEventsEnum.LOG_INFO, (message: string) => {
+      addContentLine(`{bold}${message}{/}`, content, screen);
     });
     orphanFilesHandler.cleanFiles();
+  });
+  
+  screen.key(['o', 'O'], () => {
+    let interceptStateMessage = `[!] Override mode is `;
+    parrotServerInstance.overrideMode = !parrotServerInstance.overrideMode;
+    if (parrotServerInstance.overrideMode) {
+      interceptStateMessage += '{yellow-bg}{black-fg}ENABLED !{/}';
+      footer.style.bg = 'yellow';
+      footer.style.fg = 'black';
+      logger.log('debug', `User enabled override mode.`);
+    } else {
+      interceptStateMessage += '{green-bg}{black-fg}DISABLED !{/}';
+      footer.style.bg = 'blue';
+      footer.style.fg = 'white';
+      logger.log('debug', `User disabled override mode.`);
+    }
+    screen.render();
+    addContentLine(`{bold}${interceptStateMessage}{/}`, content, screen);
   });
 } catch (e: unknown) {
   logger.log('error', 'Parrot crashed! Something went terribly wrong.', e);

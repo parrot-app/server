@@ -9,6 +9,7 @@ import { CachedRequest } from '../interfaces/CachedRequest.interface';
 import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
 import { ParrotServerEventsEnum } from '../consts/ParrotServerEvents.enum';
 import { nanoid } from 'nanoid';
+import { logger } from '../helpers/Logger';
 
 export class CacheHandler {
   private cachePath = '';
@@ -43,27 +44,51 @@ export class CacheHandler {
     return null;
   }
 
-  public saveCacheRequest(response: AxiosResponse) {
-    const requestId = nanoid(5);
+  public saveCacheRequest(response: AxiosResponse, cachedRequest?: CachedRequest | null) {
+    let requestId = '';
+    if (cachedRequest?.id) {
+      requestId = cachedRequest.id
+    } else {
+      requestId = nanoid(5)
+    }
+  
     const responseFilePath = this.createResponseBodyFile(response, requestId);
     const responseHeadersFile = this.createResponseHeadersFile(response, requestId);
 
     const cache = JSON.parse(
       fs.readFileSync(this.cachePath, this.config.encoding).toString(),
     ) as StoredCachedRequest[];
-    const newCache: StoredCachedRequest[] = [
-      ...cache,
-      {
-        id: requestId,
-        method: this.request.method,
-        url: this.request.url,
-        body: this.request.body,
-        code: response.status,
-        responseHeaders: responseHeadersFile,
-        responseBody: responseFilePath,
-        timestamp: Math.floor(Date.now() / 1000),
-      },
-    ];
+
+    let newCache: StoredCachedRequest[] = [];
+    if (cachedRequest?.id) {
+      logger.debug(`Trying to replace cached request ${cachedRequest.id}`);
+      cache.forEach(item => {
+        if (item.id === cachedRequest.id) {
+          item.method = this.request.method;
+          item.url = this.request.url;
+          item.body = this.request.body;
+          item.code = response.status;
+          item.responseHeaders = responseHeadersFile;
+          item.responseBody = responseFilePath;
+          item.timestamp = Math.floor(Date.now() / 1000);
+        }
+      });
+      newCache = [...cache];
+    } else {
+      newCache = [
+        ...cache,
+        {
+          id: requestId,
+          method: this.request.method,
+          url: this.request.url,
+          body: this.request.body,
+          code: response.status,
+          responseHeaders: responseHeadersFile,
+          responseBody: responseFilePath,
+          timestamp: Math.floor(Date.now() / 1000),
+        },
+      ];
+    }
     fs.outputFileSync(this.cachePath, JSON.stringify(newCache, null, 4));
   }
 

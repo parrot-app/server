@@ -13,6 +13,7 @@ export interface Config {
   baseUrl: string;
   gracefulFail: boolean;
   bypassCache: boolean;
+  overrideMode: boolean;
   isHttps: boolean;
   rejectUnauthorized: boolean;
   proxy: false | AxiosProxyConfig | undefined;

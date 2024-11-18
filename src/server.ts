@@ -35,6 +35,14 @@ export class ParrotServer extends EventEmitter {
     return ServerConfig;
   }
 
+  public set overrideMode(value: boolean) {
+    ServerConfig.overrideMode = value;
+  }
+
+  public get overrideMode(): boolean {
+    return ServerConfig.overrideMode;
+  }
+
   private app = express();
   private agent: https.Agent | null = null;
 
@@ -73,7 +81,9 @@ export class ParrotServer extends EventEmitter {
     this.app.use(async (req, res, next) => {
       const cachedRequest = this.getCachedRequest(req, ServerConfig);
 
-      if (cachedRequest && !this.bypassCache) {
+      if (this.overrideMode && !this.bypassCache) {
+        await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig, cachedRequest);
+      } else if (cachedRequest && !this.bypassCache) {
         return this.useCachedResponse(cachedRequest, res);
       } else {
         await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig);
@@ -120,15 +130,17 @@ export class ParrotServer extends EventEmitter {
     serverConfig: Config,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     response: AxiosResponse<any, any>,
+    cachedRequest?: CachedRequest | null,
   ): void {
     const cacheHandler = new CacheHandler(req, serverConfig);
-    cacheHandler.saveCacheRequest(response);
+    cacheHandler.saveCacheRequest(response, cachedRequest);
   }
 
   private async fetchExternalAPIAndCacheResponse(
     req: express.Request,
     res: express.Response,
     serverConfig: Config,
+    cachedRequest?: CachedRequest | null,
   ): Promise<void> {
     const externalUrl = `${serverConfig.baseUrl}${req.url}`;
     this.emit(ParrotServerEventsEnum.LOG_INFO, `[=>] Fetch: ${externalUrl}`);
@@ -155,7 +167,7 @@ export class ParrotServer extends EventEmitter {
       });
 
       if (!this.bypassCache) {
-        this.saveCacheRequest(req, serverConfig, response);
+        this.saveCacheRequest(req, serverConfig, response, cachedRequest);
       }
       this.sendResponse(res, response);
     } catch (error) {

@@ -58,6 +58,7 @@ class ParrotConfig implements Config {
       ? /true/.test(process.env['PARROT_GRACEFUL_FAIL'])
       : false) || true;
   bypassCache = process.argv.find((v) => v === 'bypass') ? true : false;
+  overrideMode = false;
   isHttps = this.baseUrl.includes('https') || false;
   host = `http${this.isHttps ? 's' : ''}://localhost`;
   rejectUnauthorized =
