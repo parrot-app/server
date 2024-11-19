@@ -2,6 +2,7 @@
   "name": "parrot-js-cli",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": "./dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
     "build:types": "tsc --build ./tsconfig.build.json",
@@ -33,7 +34,6 @@
     "https": "^1.0.0",
     "nanoid": "^5.0.8",
     "selfsigned": "^2.4.1",
-    "terminal-kit": "^3.1.1",
     "winston": "^3.16.0"
   },
   "devDependencies": {
