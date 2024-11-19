@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { response } from 'express';
 import axios, { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import cors from 'cors';
 import https from 'https';
@@ -172,6 +172,7 @@ export class ParrotServer extends EventEmitter {
       this.sendResponse(res, response);
     } catch (error) {
       this.emit(ParrotServerEventsEnum.LOG_ERROR, `[X] Error fetching: ${error}`);
+      logger.error(`Error when trying to ${req.method} '${externalUrl}'`, req.headers, req.body, error);
       res.status(500).send(error);
     }
   }
