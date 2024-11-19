@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * This is a basic example of the matching function you should implement
  * This is how Parrot will match your requests by default.
@@ -15,7 +17,19 @@ function matchBy(request, cache) {
   return cachedRequest || null;
 }
 
+/**
+ * This function will get called after your your frontend is received by parrot
+ * and before parrot requests at its turn the remote API. It helps you for example
+ * change the headers like in this example, add an auth token
+ * @param {Express.request} request
+ * @returns Express.request
+ */
 function onBeforeRequest(request) {
-  request.headers['authorization'] = 'Bearer ';
+  request.headers['authorization'] = 'Bearer AUTH_TOKEN_EXAMPLE';
   return request;
 }
+
+module.exports = {
+  matchBy,
+  onBeforeRequest,
+};
