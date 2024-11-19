@@ -35,6 +35,10 @@ const config: webpack.Configuration = {
       resourceRegExp: /term.js/,
       contextRegExp: /blessed\/lib\/widgets$/,
     }),
+    new webpack.BannerPlugin({
+      banner: '#!/usr/bin/env node',
+      raw: true,
+    })
   ],
   resolve: {
     extensions: ['.ts', '.js'],
