@@ -1,4 +1,4 @@
-import express, { response } from 'express';
+import express from 'express';
 import axios, { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import cors from 'cors';
 import https from 'https';
@@ -65,6 +65,13 @@ export class ParrotServer extends EventEmitter {
     });
     this.host = `${ServerConfig.host}:${ServerConfig.httpPort}`;
     this.target = `${ServerConfig.baseUrl}`;
+
+    if (ServerConfig.tempLogs.length > 0) {
+      ServerConfig.tempLogs.forEach(log => {
+        logger.log(log.level, log.message);
+      });
+      ServerConfig.tempLogs = [];
+    }
   }
 
   private init() {
@@ -82,7 +89,9 @@ export class ParrotServer extends EventEmitter {
       const cachedRequest = this.getCachedRequest(req, ServerConfig);
 
       if (this.overrideMode && !this.bypassCache) {
-        await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig, cachedRequest);
+        await this.fetchExternalAPIAndCacheResponse(
+          req, res, ServerConfig, cachedRequest
+        );
       } else if (cachedRequest && !this.bypassCache) {
         return this.useCachedResponse(cachedRequest, res);
       } else {

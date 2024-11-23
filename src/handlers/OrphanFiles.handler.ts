@@ -26,9 +26,17 @@ export class OrphanFilesHandler extends EventEmitter {
   private getFilePaths(dir: string): string[] {
     const directory = new Node(dir);
     if (directory && directory.children) {
-      // Get all files list and ignore the ssl folder and its content + the requestsCacheFile
+      /**
+       * Get all files list and ignore the ssl folder
+       * and its content + the requestsCacheFile
+       * */
       const files =
-        directory.getDescendants().filter(child => child.is.file).map(i => i.path).filter(el => !(el.includes('ssl/') || el.includes(this.config.requestsCacheFileName)));
+        directory.getDescendants()
+          .filter(child => child.is.file)
+          .map(i => i.path)
+          .filter(el =>
+            !(el.includes('ssl/') || el.includes(this.config.requestsCacheFileName))
+          );
       return files;
     }
     return [];

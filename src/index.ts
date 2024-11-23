@@ -63,21 +63,21 @@ try {
 
   screen.render();
 
-  logger.log('debug', 'Binding event listeners for the server.');
+  logger.debug('Binding event listeners for the server.');
   parrotServerInstance.on(ParrotServerEventsEnum.SERVER_LISTEN, () => {
-    logger.log('debug', 'Server is listening and ready.');
+    logger.debug('Server is listening and ready.');
     header.style.bg = 'green';
     header.style.fg = 'black';
     screen.render();
   });
 
   parrotServerInstance.on(ParrotServerEventsEnum.LOG_INFO, (text: string) => {
-    logger.log('debug', `Server is info log ${text}`);
+    logger.debug(`Server is info log ${text}`);
     addContentLine(`{blue-fg}${text}{/}`, content, screen);
   });
 
   parrotServerInstance.on(ParrotServerEventsEnum.LOG_SUCCESS, (text: string) => {
-    logger.log('debug', `Server is success log ${text}`);
+    logger.debug(`Server is success log ${text}`);
     addContentLine(`{green-fg}${text}{/}`, content, screen);
   });
 
@@ -90,7 +90,7 @@ try {
   );
 
   parrotServerInstance.on(ParrotServerEventsEnum.SERVER_STOP, () => {
-    logger.log('debug', `Server is stopping.`);
+    logger.debug(`Server is stopping.`);
     addContentLine(
       `{center}{red-bg}{white-fg}{bold}Server stopping in 2s...{/}{/center}`,
       content,
@@ -117,19 +117,19 @@ try {
       interceptStateMessage += '{yellow-bg}{black-fg}DISABLED !{/}';
       header.style.bg = 'yellow';
       header.style.fg = 'black';
-      logger.log('debug', `User disabled intercept mode.`);
+      logger.debug(`User disabled intercept mode.`);
     } else {
       interceptStateMessage += '{green-bg}{black-fg}ENABLED !{/}';
       header.style.bg = 'green';
       header.style.fg = 'black';
-      logger.log('debug', `User disabled enabled mode.`);
+      logger.debug(`User disabled enabled mode.`);
     }
     screen.render();
     addContentLine(`{bold}${interceptStateMessage}{/}`, content, screen);
   });
 
   screen.key(['c', 'C'], () => {
-    logger.log('debug', `Starting orphan response files cleanup.`);
+    logger.debug(`Starting orphan response files cleanup.`);
     addContentLine(`{bold}[i] Starting orphan response files cleanup.{/}`, content, screen);
     const orphanFilesHandler = new OrphanFilesHandler(parrotServerInstance.serverConfig);
     orphanFilesHandler.on(ParrotServerEventsEnum.LOG_INFO, (message: string) => {
@@ -137,7 +137,7 @@ try {
     });
     orphanFilesHandler.cleanFiles();
   });
-  
+
   screen.key(['o', 'O'], () => {
     let interceptStateMessage = `[!] Override mode is `;
     parrotServerInstance.overrideMode = !parrotServerInstance.overrideMode;
@@ -145,12 +145,12 @@ try {
       interceptStateMessage += '{yellow-bg}{black-fg}ENABLED !{/}';
       footer.style.bg = 'yellow';
       footer.style.fg = 'black';
-      logger.log('debug', `User enabled override mode.`);
+      logger.debug(`User enabled override mode.`);
     } else {
       interceptStateMessage += '{green-bg}{black-fg}DISABLED !{/}';
       footer.style.bg = 'blue';
       footer.style.fg = 'white';
-      logger.log('debug', `User disabled override mode.`);
+      logger.debug(`User disabled override mode.`);
     }
     screen.render();
     addContentLine(`{bold}${interceptStateMessage}{/}`, content, screen);

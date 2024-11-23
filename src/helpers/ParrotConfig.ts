@@ -5,20 +5,30 @@ import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface
 
 dotenv.config();
 
+const matchByPath = `${process.cwd()}/matchby.js`;
+
 class ParrotConfig implements Config {
+
+  public tempLogs: Array<{
+    level: string,
+    message: string,
+  }> = []
 
   // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
   requireDynamically(path: string) {
+    path = path.split('\\').join('/');
     return eval(`require('${path}');`);
   }
 
   parseCustomUserFn = () => {
     try {
-      const customUserFn = this.requireDynamically('./matchby.js');
+      const customUserFn = this.requireDynamically(matchByPath);
       return customUserFn;
     } catch (e) {
-      // TODO: load config first then loger or logger in minimum mode then config then logger
-      // logger.debug('No matchby.js file found, using defaults.', e);
+      this.tempLogs.push({
+        level: 'warn',
+        message: `FILE '${matchByPath}' NOT found, using defaults.  ${JSON.stringify(e)}`,
+      });
     }
   }
 
@@ -47,8 +57,6 @@ class ParrotConfig implements Config {
 
   cachePath = this.safeCachePath(process.env['PARROT_CACHEPATH'], 'cache');
 
-  logPath = this.safeCachePath(process.env['PARROT_LOGPATH'], 'logs');
-
   requestsCacheFileName = process.env['PARROT_CACHE_FILENAME'] ?? 'requests.json';
 
   encoding = (process.env['PARROT_CACHE_FILE_ENCODING'] ?? 'utf8') as BufferEncoding;
@@ -67,8 +75,8 @@ class ParrotConfig implements Config {
       : false) || false;
   proxy = false as const;
   logLevel =
-    process.env['PARROT_LOG']
-      ? process.env['PARROT_LOG'].toLowerCase() : 'error';
+    process.env['PARROT_LOG_LEVEL']
+      ? process.env['PARROT_LOG_LEVEL'].toLowerCase() : 'error';
   matchBy = (
     request: Request,
     cache: Array<StoredCachedRequest>,

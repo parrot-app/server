@@ -7,7 +7,6 @@ export interface Config {
   httpPort: number;
   host: string;
   cachePath: string;
-  logPath: string;
   requestsCacheFileName: string;
   encoding: BufferEncoding;
   baseUrl: string;
@@ -30,9 +29,8 @@ export interface Config {
       ) => StoredCachedRequest | null
     )),
     onBeforeRequest: (undefined | (
-      (req: Express.Request)
-      // TODO: change type to express.request
-        => any
+      <T>(req: Request<T>)
+        => Request<T>
     )
     ),
   }
