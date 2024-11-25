@@ -6,14 +6,20 @@ const config: webpack.Configuration = {
   context: __dirname,
   target: 'node',
   mode: 'production',
-  entry: `./src/index.ts`,
+  entry: {
+    index: './src/index.ts',
+    server: './src/server.ts',
+    installer: './src/installer.ts',
+  },
   // Fix blessed not working when bundled https://github.com/vercel/pkg/issues/530
+  // Fix critical warning with webpack https://stackoverflow.com/a/68386977
   externals: {
     blessed: 'commonjs blessed',
+    "express": "require('express')"
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
+    filename: '[name].js',
     devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
   module: {
