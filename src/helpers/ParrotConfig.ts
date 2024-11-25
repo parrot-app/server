@@ -5,7 +5,7 @@ import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface
 
 dotenv.config();
 
-const matchByPath = `${process.cwd()}/matchby.js`;
+const matchByPath = `${process.cwd()}/parrot.functions.js`;
 
 class ParrotConfig implements Config {
 

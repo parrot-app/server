@@ -21,7 +21,7 @@ export default [
     'prettier',
   ),
   {
-    ignores: ['dist/*', 'webpack.config.ts', 'node_modules/*', 'eslint.config.mjs', 'matchby.js', 'matchbyy.sample.js'],
+    ignores: ['dist/*', 'webpack.config.ts', 'node_modules/*', 'eslint.config.mjs', 'parrot.functions.js', 'matchbyy.sample.js'],
     plugins: {
       '@typescript-eslint': typescriptEslint,
     },
