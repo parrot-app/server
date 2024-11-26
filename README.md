@@ -110,6 +110,7 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 - [x] Add timestamps and random IDs for requests
 - [ ] Add log files
 - [ ] Visual/GUI/Web-server frontend tool?
+- [x] Adding a plain JSON file in the `requests.json` (gets transformed) or handled like json with ref files?
 
 ## Contribute
 

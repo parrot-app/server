@@ -51,7 +51,7 @@ export class CacheHandler {
     } else {
       requestId = nanoid(5)
     }
-  
+
     const responseFilePath = this.createResponseBodyFile(response, requestId);
     const responseHeadersFile = this.createResponseHeadersFile(response, requestId);
 
@@ -96,38 +96,44 @@ export class CacheHandler {
     storedCachedRequest: StoredCachedRequest,
   ): CachedRequest | null {
     const cachedRequest = {} as CachedRequest;
+
+    // Keep things safe by copying our object
     Object.assign(cachedRequest, storedCachedRequest);
-    if (
-      storedCachedRequest.responseBody &&
-      typeof storedCachedRequest.responseBody === 'string'
-    ) {
-      if (fs.existsSync(storedCachedRequest.responseBody)) {
-        cachedRequest.responseBody = JSON.parse(
-          fs
-            .readFileSync(storedCachedRequest.responseBody, this.config.encoding)
-            .toString(),
-        );
-      } else {
-        this.cleanupRemovedEntries();
-        return null;
-      }
-    }
-    if (
-      storedCachedRequest.responseHeaders &&
-      typeof storedCachedRequest.responseHeaders === 'string' &&
-      fs.existsSync(storedCachedRequest.responseHeaders)
-    ) {
-      cachedRequest.responseHeaders = JSON.parse(
-        fs
-          .readFileSync(storedCachedRequest.responseHeaders, this.config.encoding)
-          .toString(),
-      );
-    } else {
-      this.cleanupRemovedEntries();
-      return null;
-    }
+
+    this.parseResponseItem(storedCachedRequest, cachedRequest, 'responseBody');
+    this.parseResponseItem(storedCachedRequest, cachedRequest, 'responseHeaders');
+
     cachedRequest.timestamp = new Date(storedCachedRequest.timestamp * 1000);
     return cachedRequest;
+  }
+
+  private parseResponseItem(
+    storedCachedRequest: StoredCachedRequest,
+    cachedRequest: CachedRequest,
+    key: 'responseBody' | 'responseHeaders',
+  ) {
+    if (
+      storedCachedRequest[key] &&
+      typeof storedCachedRequest[key] === 'string'
+    ) {
+      try {
+        // Try to parse the request's content as simple JSON (if the user created manually the entry)
+        cachedRequest[key] = JSON.parse(storedCachedRequest[key]);
+      } catch {
+        // The entry is an automatic response that Parrot saved
+        if (fs.existsSync(storedCachedRequest[key])) {
+          cachedRequest[key] = JSON.parse(
+            fs
+              .readFileSync(storedCachedRequest[key], this.config.encoding)
+              .toString(),
+          );
+          // The response file has been removed, remove the entry from the cache
+        } else {
+          this.cleanupRemovedEntries();
+          return null;
+        }
+      }
+    }
   }
 
   private createResponseBodyFile(response: AxiosResponse, id: string) {
