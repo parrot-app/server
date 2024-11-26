@@ -8,15 +8,28 @@
  * @param {Array<CachedRequest>} cache the full cache array from `requests.json`
  * @returns CachedRequest
  */
-function matchBy(request, cache) {
+function matchBy(request, cache, logger) {
   const cachedRequest = cache.find(
-    (cachedRequestItem) =>
-      cachedRequestItem.method === request.method &&
-      cachedRequestItem.url === request.url,
+    (cachedRequestItem) => {
+      if (cachedRequestItem.method === request.method) {
+        logger.info('true for url length')
+        const cachedRequestUrlElements = cachedRequestItem.url.split('/');
+        const requestUrlElements = request.url.split('/');
+        logger.info(JSON.stringify(cachedRequestUrlElements));
+        logger.info(JSON.stringify(requestUrlElements));
+        if (cachedRequestUrlElements.length === requestUrlElements.length) {
+          const r = cachedRequestUrlElements.reduce((acc, el, idx) => {
+            return (el === requestUrlElements[idx] || el === '*') && acc;
+          }, acc);
+          logger.info('result is ' + r);
+          return r;
+        }
+      }
+      return false;
+    }
   );
   return cachedRequest || null;
 }
-
 /**
  * This function will get called after your your frontend is received by parrot
  * and before parrot requests at its turn the remote API. It helps you for example

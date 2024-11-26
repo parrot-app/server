@@ -1,4 +1,4 @@
-import { Config } from '../interfaces/Config.interface';
+import { Config, CustomUserFn } from '../interfaces/Config.interface';
 import { Request } from 'express';
 import dotenv from 'dotenv';
 import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
@@ -20,16 +20,24 @@ class ParrotConfig implements Config {
     return eval(`require('${path}');`);
   }
 
-  parseCustomUserFn = () => {
+  parseCustomUserFn = (): CustomUserFn | undefined => {
     try {
       const customUserFn = this.requireDynamically(matchByPath);
-      return customUserFn;
+      this.tempLogs.push({
+        level: 'info',
+        message: `FILE '${matchByPath}' found, using user's 'parrot.functions.js'.`,
+      });
+      return {
+        matchBy: customUserFn?.matchBy,
+        onBeforeRequest: customUserFn?.onBeforeRequest,
+      };
     } catch (e) {
       this.tempLogs.push({
         level: 'warn',
         message: `FILE '${matchByPath}' NOT found, using defaults.  ${JSON.stringify(e)}`,
       });
     }
+    return undefined;
   }
 
   public customUserFn = this.parseCustomUserFn();
