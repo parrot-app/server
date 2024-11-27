@@ -111,6 +111,8 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 - [ ] Add log files
 - [ ] Visual/GUI/Web-server frontend tool?
 - [x] Adding a plain JSON file in the `requests.json` (gets transformed) or handled like json with ref files?
+- [x] Wildcard handling eg. `/api/v1/user/*/settings`
+- [ ] `parrot.functions.js` in TS too?
 
 ## Contribute
 

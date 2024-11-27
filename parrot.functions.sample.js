@@ -8,20 +8,16 @@
  * @param {Array<CachedRequest>} cache the full cache array from `requests.json`
  * @returns CachedRequest
  */
-function matchBy(request, cache, logger) {
+function matchBy(request, cache) {
   const cachedRequest = cache.find(
     (cachedRequestItem) => {
       if (cachedRequestItem.method === request.method) {
-        logger.info('true for url length')
         const cachedRequestUrlElements = cachedRequestItem.url.split('/');
         const requestUrlElements = request.url.split('/');
-        logger.info(JSON.stringify(cachedRequestUrlElements));
-        logger.info(JSON.stringify(requestUrlElements));
         if (cachedRequestUrlElements.length === requestUrlElements.length) {
           const r = cachedRequestUrlElements.reduce((acc, el, idx) => {
             return (el === requestUrlElements[idx] || el === '*') && acc;
-          }, acc);
-          logger.info('result is ' + r);
+          }, true);
           return r;
         }
       }
@@ -38,7 +34,6 @@ function matchBy(request, cache, logger) {
  * @returns Express.request
  */
 function onBeforeRequest(request) {
-  request.headers['authorization'] = 'Bearer AUTH_TOKEN_EXAMPLE';
   return request;
 }
 

@@ -87,19 +87,14 @@ export class ParrotServer extends EventEmitter {
 
     this.app.use(async (req, res, next) => {
       try {
-        const cachedRequest = this.getCachedRequest(req, ServerConfig);
-        this.emit(ParrotServerEventsEnum.LOG_INFO, cachedRequest)
-        
+        const cachedRequest = this.getCachedRequest(req, ServerConfig);        
         if (this.overrideMode && !this.bypassCache) {
-          this.emit(ParrotServerEventsEnum.LOG_INFO, 'fetching')
           await this.fetchExternalAPIAndCacheResponse(
             req, res, ServerConfig, cachedRequest
           );
         } else if (cachedRequest && !this.bypassCache) {
-          this.emit(ParrotServerEventsEnum.LOG_INFO, 'cache hit')
           return this.useCachedResponse(cachedRequest, res);
         } else {
-          this.emit(ParrotServerEventsEnum.LOG_INFO, 'nothing in cache, fetching')
           await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig);
         }
       } catch (e) {

@@ -36,17 +36,21 @@ export class CacheHandler {
       fs.readFileSync(this.cachePath, this.config.encoding).toString(),
     ) as StoredCachedRequest[];
     if (cache.length > 0) {
-      // TODO: simplify this so that the config provides a unique function?
       const matchFn = (this.config.customUserFn?.matchBy !== undefined) ? this.config.customUserFn.matchBy : this.config.matchBy;
       try {
-        const cachedRequest = matchFn(this.request, cache, logger);
+        const cachedRequest = matchFn(this.request, cache);
         if (cachedRequest) {
           return this.parseCachedResponse(cachedRequest);
         }
       } catch (e) {
         logger.error(`An error occured when invoking the match function: ${e}`);
+        logger.error(`Using the default matchBy function as a fallback!`);
+
+        const cachedRequest = this.config.matchBy(this.request, cache);
+        if (cachedRequest) {
+          return this.parseCachedResponse(cachedRequest);
+        }
       }
-      
     }
     return null;
   }

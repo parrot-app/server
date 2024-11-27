@@ -30,7 +30,6 @@ export type CustomUserFn = {
     (
       request: Request,
       cache: Array<StoredCachedRequest>,
-      logger?: winston.Logger,
     ) => StoredCachedRequest | null
   ));
   onBeforeRequest: (undefined | (
