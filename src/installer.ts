@@ -73,7 +73,19 @@ screen.key(['escape', 'q', 'C-c'], () => {
     );
 });
 
-exec('npm i --prefix ./ @parrot-app/server', (
+content.append(blessed.prompt({
+    align: 'center',
+    width: '80%',
+    content: 'Do you wish to install ParrotJS server files in this folder?',
+}));
+
+const COMMANDS = `
+npm i --prefix ./ @parrot-app/server
+mv ./node_modules/@parrot-app/server/*.* ./
+mv ./node_modules/@parrot-app/server/.env.sample ./.env
+mv parrot.functions.sample.js parrot.functions.js
+`
+/* exec('npm i --prefix ./ @parrot-app/server', (
     error, stdout, stderr
 ) => {
     if (error) {
@@ -85,7 +97,7 @@ exec('npm i --prefix ./ @parrot-app/server', (
     if (stderr) {
         addContentLine(stderr, content, screen);
     }
-});
+}); */
 
 
 function addContentLine(
