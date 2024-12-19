@@ -32,7 +32,7 @@
     "http": "^0.0.1-security",
     "http-proxy-agent": "^7.0.2",
     "https": "^1.0.0",
-    "nanoid": "^5.0.8",
+    "nanoid": "^5.0.9",
     "selfsigned": "^2.4.1",
     "winston": "^3.16.0"
   },
