@@ -1,6 +1,6 @@
 {
   "name": "@parrot-app/server",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "main": "index.js",
   "bin": "./dist/index.js",
   "scripts": {
