@@ -2,7 +2,7 @@ name: Publish on npm and Github Packages
 
 on:
   push:
-    branches: master
+    branches: main
 
 jobs:
   publish:
