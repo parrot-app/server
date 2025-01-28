@@ -1,18 +1,10 @@
 {
-  "compilerOptions": {
-    "target": "ES5",
-    "module": "CommonJS",
-    "strict": true,
+	"extends": "@sindresorhus/tsconfig",
+	"compilerOptions": {
+    "module": "es2020",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "sourceMap": true
-  },
-  "paths": {
-    "@src/*": ["./src/*"]
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "parrot.functions.js", "parrot.functions.sample.js"]
+		"outDir": "dist"
+	},
+	"include": ["src"]
 }
