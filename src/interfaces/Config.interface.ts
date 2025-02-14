@@ -1,7 +1,6 @@
 import { AxiosProxyConfig } from 'axios';
 import { Request } from 'express';
 import { StoredCachedRequest } from './StoredCachedRequest.interface';
-import winston from 'winston';
 
 export interface Config {
   httpsPort: number;
@@ -11,7 +10,6 @@ export interface Config {
   requestsCacheFileName: string;
   encoding: BufferEncoding;
   baseUrl: string;
-  gracefulFail: boolean;
   bypassCache: boolean;
   overrideMode: boolean;
   isHttps: boolean;
@@ -26,15 +24,11 @@ export interface Config {
 }
 
 export type CustomUserFn = {
-  matchBy: (undefined | (
-    (
-      request: Request,
-      cache: Array<StoredCachedRequest>,
-    ) => StoredCachedRequest | null
-  ));
-  onBeforeRequest: (undefined | (
-    <T>(req: Request<T>)
-      => Request<T>
-  )
-  );
-}
+  matchBy:
+    | undefined
+    | ((
+        request: Request,
+        cache: Array<StoredCachedRequest>,
+      ) => StoredCachedRequest | null);
+  onBeforeRequest: undefined | (<T>(req: Request<T>) => Request<T>);
+};

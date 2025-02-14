@@ -5,6 +5,6 @@ export interface StoredCachedRequest {
   body: string;
   code: number;
   responseHeaders: string;
-  responseBody: any;
+  responseBody: string | undefined;
   timestamp: number;
 }

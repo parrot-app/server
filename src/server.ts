@@ -1,19 +1,19 @@
-import express from 'express';
 import axios, { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import cors from 'cors';
-import https from 'https';
-import http from 'http';
+import express from 'express';
 import fs from 'fs-extra';
+import http from 'http';
+import https from 'https';
 
-import { ServerConfig } from './helpers/ParrotConfig';
-import { CacheHandler } from './handlers/Cache.handler';
-import { Config } from './interfaces/Config.interface';
-import { CertGenerator } from './helpers/CertGenerator';
-import { CachedRequest } from './interfaces/CachedRequest.interface';
 import { EventEmitter } from 'stream';
-import { GetCleanHeaderKeys } from './helpers/GetCleanHeaderKeys';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
+import { CacheHandler } from './handlers/Cache.handler';
+import { CertGenerator } from './helpers/CertGenerator';
+import { GetCleanHeaderKeys } from './helpers/GetCleanHeaderKeys';
 import { logger } from './helpers/Logger';
+import { ServerConfig } from './helpers/ParrotConfig';
+import { CachedRequest } from './interfaces/CachedRequest.interface';
+import { Config } from './interfaces/Config.interface';
 
 https.globalAgent.options.rejectUnauthorized = false;
 
@@ -50,14 +50,20 @@ export class ParrotServer extends EventEmitter {
     super();
     this.init();
     this.server?.listen(ServerConfig.httpPort, () => {
-      this.emit(ParrotServerEventsEnum.LOG_SUCCESS, `[OK] ParrotJS {bold}http{/bold} server is running on port: ${ServerConfig.httpPort}`);
+      this.emit(
+        ParrotServerEventsEnum.LOG_SUCCESS,
+        `[OK] ParrotJS {bold}http{/bold} server is running on port: ${ServerConfig.httpPort}`,
+      );
       this.emit(ParrotServerEventsEnum.SERVER_LISTEN);
     });
     this.server?.on('close', () => {
       this.emit(ParrotServerEventsEnum.SERVER_STOP);
     });
     this.secureServer?.listen(ServerConfig.httpsPort, () => {
-      this.emit(ParrotServerEventsEnum.LOG_SUCCESS, `[OK] ParrotJS {bold}https{/bold} server is running on port: ${ServerConfig.httpsPort}`);
+      this.emit(
+        ParrotServerEventsEnum.LOG_SUCCESS,
+        `[OK] ParrotJS {bold}https{/bold} server is running on port: ${ServerConfig.httpsPort}`,
+      );
       this.emit(ParrotServerEventsEnum.SERVER_LISTEN);
     });
     this.secureServer?.on('close', () => {
@@ -67,7 +73,7 @@ export class ParrotServer extends EventEmitter {
     this.target = `${ServerConfig.baseUrl}`;
 
     if (ServerConfig.tempLogs.length > 0) {
-      ServerConfig.tempLogs.forEach(log => {
+      ServerConfig.tempLogs.forEach((log) => {
         logger.log(log.level, log.message);
       });
       ServerConfig.tempLogs = [];
@@ -87,10 +93,13 @@ export class ParrotServer extends EventEmitter {
 
     this.app.use(async (req, res, next) => {
       try {
-        const cachedRequest = this.getCachedRequest(req, ServerConfig);        
+        const cachedRequest = this.getCachedRequest(req, ServerConfig);
         if (this.overrideMode && !this.bypassCache) {
           await this.fetchExternalAPIAndCacheResponse(
-            req, res, ServerConfig, cachedRequest
+            req,
+            res,
+            ServerConfig,
+            cachedRequest,
           );
         } else if (cachedRequest && !this.bypassCache) {
           return this.useCachedResponse(cachedRequest, res);
@@ -98,7 +107,10 @@ export class ParrotServer extends EventEmitter {
           await this.fetchExternalAPIAndCacheResponse(req, res, ServerConfig);
         }
       } catch (e) {
-        this.emit(ParrotServerEventsEnum.LOG_ERROR, `An unexpected error happened while fetching or handling the cache: ${JSON.stringify(e)}`);
+        this.emit(
+          ParrotServerEventsEnum.LOG_ERROR,
+          `An unexpected error happened while fetching or handling the cache: ${JSON.stringify(e)}`,
+        );
       }
 
       next();
@@ -184,7 +196,12 @@ export class ParrotServer extends EventEmitter {
       this.sendResponse(res, response);
     } catch (error) {
       this.emit(ParrotServerEventsEnum.LOG_ERROR, `[X] Error fetching: ${error}`);
-      logger.error(`Error when trying to ${req.method} '${externalUrl}'`, req.headers, req.body, error);
+      logger.error(
+        `Error when trying to ${req.method} '${externalUrl}'`,
+        req.headers,
+        req.body,
+        error,
+      );
       res.status(500).send(error);
     }
   }

@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
-import { Config } from '../interfaces/Config.interface';
 import { generate } from 'selfsigned';
+import { Config } from '../interfaces/Config.interface';
 
 export class CertGenerator {
   public static generate(config: Config): {
@@ -30,7 +30,9 @@ export class CertGenerator {
           cert: certPath,
         };
       }
-    } catch (error) {}
+    } catch {
+      console.error('Cannot generate ParrotJS Server certificates.');
+    }
     return null;
   }
 

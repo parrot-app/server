@@ -15,7 +15,7 @@ const config: webpack.Configuration = {
   // Fix critical warning with webpack https://stackoverflow.com/a/68386977
   externals: {
     blessed: 'commonjs blessed',
-    "express": "require('express')"
+    express: "require('express')",
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -44,7 +44,7 @@ const config: webpack.Configuration = {
     new webpack.BannerPlugin({
       banner: '#!/usr/bin/env node',
       raw: true,
-    })
+    }),
   ],
   resolve: {
     extensions: ['.ts', '.js'],

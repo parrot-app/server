@@ -1,15 +1,15 @@
-import fs from 'fs-extra';
-import https from 'https';
-import http from 'http';
-import { Request } from 'express';
 import { AxiosResponse } from 'axios';
+import { Request } from 'express';
+import fs from 'fs-extra';
+import http from 'http';
+import https from 'https';
 
-import { Config } from '../interfaces/Config.interface';
-import { CachedRequest } from '../interfaces/CachedRequest.interface';
-import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
-import { ParrotServerEventsEnum } from '../consts/ParrotServerEvents.enum';
 import { nanoid } from 'nanoid';
+import { ParrotServerEventsEnum } from '../consts/ParrotServerEvents.enum';
 import { logger } from '../helpers/Logger';
+import { CachedRequest } from '../interfaces/CachedRequest.interface';
+import { Config } from '../interfaces/Config.interface';
+import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
 
 export class CacheHandler {
   private cachePath = '';
@@ -36,7 +36,10 @@ export class CacheHandler {
       fs.readFileSync(this.cachePath, this.config.encoding).toString(),
     ) as StoredCachedRequest[];
     if (cache.length > 0) {
-      const matchFn = (this.config.customUserFn?.matchBy !== undefined) ? this.config.customUserFn.matchBy : this.config.matchBy;
+      const matchFn =
+        this.config.customUserFn?.matchBy !== undefined
+          ? this.config.customUserFn.matchBy
+          : this.config.matchBy;
       try {
         const cachedRequest = matchFn(this.request, cache);
         if (cachedRequest) {
@@ -58,9 +61,9 @@ export class CacheHandler {
   public saveCacheRequest(response: AxiosResponse, cachedRequest?: CachedRequest | null) {
     let requestId = '';
     if (cachedRequest?.id) {
-      requestId = cachedRequest.id
+      requestId = cachedRequest.id;
     } else {
-      requestId = nanoid(5)
+      requestId = nanoid(5);
     }
 
     const responseFilePath = this.createResponseBodyFile(response, requestId);
@@ -73,7 +76,7 @@ export class CacheHandler {
     let newCache: StoredCachedRequest[] = [];
     if (cachedRequest?.id) {
       logger.debug(`Trying to replace cached request ${cachedRequest.id}`);
-      cache.forEach(item => {
+      cache.forEach((item) => {
         if (item.id === cachedRequest.id) {
           item.method = this.request.method;
           item.url = this.request.url;
@@ -123,20 +126,16 @@ export class CacheHandler {
     cachedRequest: CachedRequest,
     key: 'responseBody' | 'responseHeaders',
   ) {
-    if (
-      storedCachedRequest[key] &&
-      typeof storedCachedRequest[key] === 'string'
-    ) {
+    if (storedCachedRequest[key] && typeof storedCachedRequest[key] === 'string') {
       try {
-        // Try to parse the request's content as simple JSON (if the user created manually the entry)
+        // Try to parse the request's content as simple JSON
+        // This happens if the user created the entry manually
         cachedRequest[key] = JSON.parse(storedCachedRequest[key]);
       } catch {
         // The entry is an automatic response that Parrot saved
         if (fs.existsSync(storedCachedRequest[key])) {
           cachedRequest[key] = JSON.parse(
-            fs
-              .readFileSync(storedCachedRequest[key], this.config.encoding)
-              .toString(),
+            fs.readFileSync(storedCachedRequest[key], this.config.encoding).toString(),
           );
           // The response file has been removed, remove the entry from the cache
         } else {
@@ -183,14 +182,18 @@ export class CacheHandler {
     ) as StoredCachedRequest[];
     if (cache.length > 0) {
       cache = cache.filter((item) => {
-        if (fs.existsSync(item.responseHeaders) && fs.existsSync(item.responseBody)) {
+        if (
+          fs.existsSync(item.responseHeaders) &&
+          item.responseBody !== undefined &&
+          fs.existsSync(item.responseBody)
+        ) {
           return true;
         } else if (!fs.existsSync(item.responseHeaders)) {
-          if (fs.existsSync(item.responseBody)) {
+          if (item.responseBody !== undefined && fs.existsSync(item.responseBody)) {
             fs.removeSync(item.responseBody);
             return false;
           }
-        } else if (!fs.existsSync(item.responseBody)) {
+        } else if (item.responseBody !== undefined && !fs.existsSync(item.responseBody)) {
           if (fs.existsSync(item.responseHeaders)) {
             fs.removeSync(item.responseHeaders);
             return false;

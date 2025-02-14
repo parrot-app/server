@@ -1,9 +1,9 @@
-import { Config } from '../interfaces/Config.interface';
-import { EventEmitter } from 'stream';
-import { Node } from 'graph-fs';
 import fs from 'fs-extra';
-import { logger } from '../helpers/Logger';
+import { Node } from 'graph-fs';
+import { EventEmitter } from 'stream';
 import { ParrotServerEventsEnum } from '../consts/ParrotServerEvents.enum';
+import { logger } from '../helpers/Logger';
+import { Config } from '../interfaces/Config.interface';
 import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
 
 export class OrphanFilesHandler extends EventEmitter {
@@ -16,11 +16,14 @@ export class OrphanFilesHandler extends EventEmitter {
   public cleanFiles() {
     const filePaths = this.getFilePaths(this.cacheFolderPath);
     const orphanFilesList = this.getOrphanFiles(filePaths);
-    orphanFilesList.forEach(filePath => {
+    orphanFilesList.forEach((filePath) => {
       logger.info(`[i] Removed orphan file ${filePath}`);
       fs.removeSync(filePath);
     });
-    this.emit(ParrotServerEventsEnum.LOG_INFO, `[i] Removed ${orphanFilesList.length} orphan files.`)
+    this.emit(
+      ParrotServerEventsEnum.LOG_INFO,
+      `[i] Removed ${orphanFilesList.length} orphan files.`,
+    );
   }
 
   private getFilePaths(dir: string): string[] {
@@ -30,13 +33,14 @@ export class OrphanFilesHandler extends EventEmitter {
        * Get all files list and ignore the ssl folder
        * and its content + the requestsCacheFile
        * */
-      const files =
-        directory.getDescendants()
-          .filter(child => child.is.file)
-          .map(i => i.path)
-          .filter(el =>
-            !(el.includes('ssl/') || el.includes(this.config.requestsCacheFileName))
-          );
+      const files = directory
+        .getDescendants()
+        .filter((child) => child.is.file)
+        .map((i) => i.path)
+        .filter(
+          (el) =>
+            !(el.includes('ssl/') || el.includes(this.config.requestsCacheFileName)),
+        );
       return files;
     }
     return [];
@@ -44,11 +48,15 @@ export class OrphanFilesHandler extends EventEmitter {
 
   private getOrphanFiles(filePaths: Array<string>) {
     const cache = JSON.parse(
-      fs.readFileSync(`${this.cacheFolderPath}/${this.config.requestsCacheFileName}`, this.config.encoding).toString(),
+      fs
+        .readFileSync(
+          `${this.cacheFolderPath}/${this.config.requestsCacheFileName}`,
+          this.config.encoding,
+        )
+        .toString(),
     ) as StoredCachedRequest[];
-    const list = cache.flatMap(item => [item.responseBody, item.responseHeaders]);
-    const orphanFilesList = filePaths.filter(item => !list.find(lf => lf === item));
+    const list = cache.flatMap((item) => [item.responseBody, item.responseHeaders]);
+    const orphanFilesList = filePaths.filter((item) => !list.find((lf) => lf === item));
     return orphanFilesList;
   }
-
 }

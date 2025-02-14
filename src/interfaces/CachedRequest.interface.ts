@@ -2,10 +2,10 @@ export interface CachedRequest {
   id: string;
   method: string;
   url: string;
-  body: any;
+  body: unknown;
   code: number;
   responseHeaders: CachedResponseHeader;
-  responseBody: any;
+  responseBody: unknown;
   timestamp: Date;
 }
 
