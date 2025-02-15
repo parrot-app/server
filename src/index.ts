@@ -1,8 +1,8 @@
 import blessed from 'blessed';
-import { ParrotServer } from './server';
 import { ParrotServerEventsEnum } from './consts/ParrotServerEvents.enum';
 import { OrphanFilesHandler } from './handlers/OrphanFiles.handler';
 import { logger } from './helpers/Logger';
+import { ParrotServer } from './server';
 
 try {
   const parrotServerInstance = new ParrotServer();
@@ -20,7 +20,7 @@ try {
     left: 0,
     width: '100%',
     height: 1,
-    content: `ParrotJS - ${parrotServerInstance.host}${parrotServerInstance.serverConfig.httpsPort ? '[s]:'+parrotServerInstance.serverConfig.httpsPort : ''} => ${parrotServerInstance.target}`,
+    content: `ParrotJS - ${parrotServerInstance.host}${parrotServerInstance.serverConfig.httpsPort ? '[s]:' + parrotServerInstance.serverConfig.httpsPort : ''} => ${parrotServerInstance.target}`,
     style: {
       fg: 'white',
       bg: 'blue',
@@ -130,7 +130,11 @@ try {
 
   screen.key(['c', 'C'], () => {
     logger.debug(`Starting orphan response files cleanup.`);
-    addContentLine(`{bold}[i] Starting orphan response files cleanup.{/}`, content, screen);
+    addContentLine(
+      `{bold}[i] Starting orphan response files cleanup.{/}`,
+      content,
+      screen,
+    );
     const orphanFilesHandler = new OrphanFilesHandler(parrotServerInstance.serverConfig);
     orphanFilesHandler.on(ParrotServerEventsEnum.LOG_INFO, (message: string) => {
       addContentLine(`{bold}${message}{/}`, content, screen);

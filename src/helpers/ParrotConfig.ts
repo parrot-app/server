@@ -1,6 +1,6 @@
-import { Config, CustomUserFn } from '../interfaces/Config.interface';
-import { Request } from 'express';
 import dotenv from 'dotenv';
+import { Request } from 'express';
+import { Config, CustomUserFn } from '../interfaces/Config.interface';
 import { StoredCachedRequest } from '../interfaces/StoredCachedRequest.interface';
 
 dotenv.config();
@@ -8,11 +8,10 @@ dotenv.config();
 const matchByPath = `${process.cwd()}/parrot.functions.js`;
 
 class ParrotConfig implements Config {
-
   public tempLogs: Array<{
-    level: string,
-    message: string,
-  }> = []
+    level: string;
+    message: string;
+  }> = [];
 
   // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
   requireDynamically(path: string) {
@@ -38,7 +37,7 @@ class ParrotConfig implements Config {
       });
     }
     return undefined;
-  }
+  };
 
   public customUserFn = this.parseCustomUserFn();
 
@@ -69,10 +68,6 @@ class ParrotConfig implements Config {
 
   encoding = (process.env['PARROT_CACHE_FILE_ENCODING'] ?? 'utf8') as BufferEncoding;
   baseUrl = process.env['PARROT_API_BASE'] || 'http://localhost';
-  gracefulFail =
-    (process.env['PARROT_GRACEFUL_FAIL']
-      ? /true/.test(process.env['PARROT_GRACEFUL_FAIL'])
-      : false) || true;
   bypassCache = process.argv.find((v) => v === 'bypass') ? true : false;
   overrideMode = false;
   isHttps = this.baseUrl.includes('https') || false;
@@ -82,9 +77,9 @@ class ParrotConfig implements Config {
       ? /true/.test(process.env['PARROT_REJECT_UNAUTHORIZED'])
       : false) || false;
   proxy = false as const;
-  logLevel =
-    process.env['PARROT_LOG_LEVEL']
-      ? process.env['PARROT_LOG_LEVEL'].toLowerCase() : 'error';
+  logLevel = process.env['PARROT_LOG_LEVEL']
+    ? process.env['PARROT_LOG_LEVEL'].toLowerCase()
+    : 'error';
   matchBy = (
     request: Request,
     cache: Array<StoredCachedRequest>,

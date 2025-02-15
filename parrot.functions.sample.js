@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * This is a basic example of the matching function you should implement
@@ -9,21 +9,19 @@
  * @returns CachedRequest
  */
 function matchBy(request, cache) {
-  const cachedRequest = cache.find(
-    (cachedRequestItem) => {
-      if (cachedRequestItem.method === request.method) {
-        const cachedRequestUrlElements = cachedRequestItem.url.split('/');
-        const requestUrlElements = request.url.split('/');
-        if (cachedRequestUrlElements.length === requestUrlElements.length) {
-          const r = cachedRequestUrlElements.reduce((acc, el, idx) => {
-            return (el === requestUrlElements[idx] || el === '*') && acc;
-          }, true);
-          return r;
-        }
+  const cachedRequest = cache.find((cachedRequestItem) => {
+    if (cachedRequestItem.method === request.method) {
+      const cachedRequestUrlElements = cachedRequestItem.url.split('/');
+      const requestUrlElements = request.url.split('/');
+      if (cachedRequestUrlElements.length === requestUrlElements.length) {
+        const r = cachedRequestUrlElements.reduce((acc, el, idx) => {
+          return (el === requestUrlElements[idx] || el === '*') && acc;
+        }, true);
+        return r;
       }
-      return false;
     }
-  );
+    return false;
+  });
   return cachedRequest || null;
 }
 /**
@@ -34,6 +32,7 @@ function matchBy(request, cache) {
  * @returns Express.request
  */
 function onBeforeRequest(request) {
+  request.headers['authorization'] = 'Bearer MY_TOP_SECRET_TOKEN';
   return request;
 }
 

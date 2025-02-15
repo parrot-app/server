@@ -1,6 +1,6 @@
 {
   "name": "@parrot-app/server",
-  "version": "1.0.1-alpha",
+  "version": "1.0.2-rc1",
   "main": "index.js",
   "repository": {
     "url": "git+https://github.com/parrot-app/server.git"
@@ -19,10 +19,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "build:types": "tsc --build ./tsconfig.build.json",
-    "build:prod": "webpack --mode production",
+    "build:prod": "node --loader ts-node/esm node_modules/webpack-cli/bin/cli.js --config webpack.config.ts --mode production",
     "build": "npm run clean && npm run build:types && npm run build:prod",
     "start": "node ./dist/index.js",
-    "dev:watch": "webpack --watch",
+    "dev:watch": "node --loader ts-node/esm node_modules/webpack-cli/bin/cli.js --config webpack.config.ts --watch",
     "dev": "nodemon",
     "format": "prettier --write .",
     "lint": "eslint .",
@@ -35,7 +35,6 @@
     "axios": "^1.7.7",
     "blessed": "^0.1.81",
     "body-parser": "^1.20.3",
-    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
@@ -44,7 +43,9 @@
     "http": "^0.0.1-security",
     "http-proxy-agent": "^7.0.2",
     "https": "^1.0.0",
+    "kleur": "^4.1.5",
     "nanoid": "^5.0.9",
+    "prompts": "^2.4.2",
     "selfsigned": "^2.4.1",
     "winston": "^3.16.0"
   },
@@ -56,6 +57,7 @@
     "@types/express": "^4.17.21",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.8.4",
+    "@types/prompts": "^2.4.9",
     "@types/selfsigned": "^2.0.4",
     "@types/terminal-kit": "^2.5.6",
     "@types/webpack": "^5.28.5",
