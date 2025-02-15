@@ -7,6 +7,8 @@
  * - Check if the init is ready and start parrot
  */
 import { exec } from 'child_process';
+import { writeFile } from 'fs-extra';
+import kleur from 'kleur';
 import prompts from 'prompts';
 
 const COMMANDS = `
@@ -27,26 +29,24 @@ const parseArgumentsAndStart = () => {
   const args = process.argv;
   const dryRun = !!args.find((e) => e === '--dry');
   if (args.find((e) => e === '-h' || e === '--help')) {
-    console.log(`
-      ParrotJS -- Help
-
-      To install ParrotJS please run
-      'npx @parrot-app/server -i'
-      or
-      'npx @parrot-app/server --install'
-
-      Note: Please run the install in an empty folder.
-
-      To display the help page run
-      'npx @parrot-app/server -h'
-      or
-      'npx @parrot-app/server --help'
-
-      Dry run (debug purposes)
-      'npx @parrot-app/server --dry'
-
-      More commands in the future o/
-      `);
+    console.log(
+      kleur.bgGreen('### ParrotJS -- Help ###'),
+      '\n\n',
+      kleur.white('To install ParrotJS please run\n'),
+      kleur.underline('npx @parrot-app/server -i\n'),
+      kleur.white('or\n'),
+      kleur.underline('npx @parrot-app/server --install\n\n'),
+      kleur.bgYellow(kleur.black('Note: Please run the install in an empty folder.')),
+      '\n\n',
+      kleur.white('To display the help page run\n'),
+      kleur.underline('npx @parrot-app/server -h\n'),
+      kleur.white('or\n'),
+      kleur.underline('npx @parrot-app/server --help\n\n'),
+      kleur.white('Dry run (debug purposes)\n'),
+      kleur.underline('npx @parrot-app/server --dry\n\n'),
+      kleur.bgGreen(kleur.black('More commands in the future o/')),
+      '\n',
+    );
     process.exit(0);
   }
   if (args.find((e) => e === '-i' || e === '--install')) {
@@ -57,7 +57,7 @@ const parseArgumentsAndStart = () => {
   }
 };
 
-const startPostInstallConfig = async () => {
+const startPostInstallConfig = async (dryRun = false) => {
   const response = await prompts([
     {
       type: 'text',
@@ -159,7 +159,7 @@ const startPostInstallConfig = async () => {
       initial: 0,
     },
   ]);
-  console.log(response);
+  writeEnvFile(response, dryRun);
 };
 
 const confirmAndInstall = async (dryRun = false) => {
@@ -176,9 +176,11 @@ const confirmAndInstall = async (dryRun = false) => {
     const isInstallSuccess = await execCommands(dryRun);
     if (isInstallSuccess) {
       console.info(
-        'Install complete! The next prompts will help you setup your .env file.',
+        kleur.blue(
+          '[i] Install complete! The next prompts will help you setup your .env file.',
+        ),
       );
-      startPostInstallConfig();
+      startPostInstallConfig(dryRun);
       return;
     }
   }
@@ -188,20 +190,56 @@ const execCommands = (dryRun: boolean) => {
   const result = new Promise<boolean>((resolve, reject) => {
     exec(dryRun ? DRY_RUN_COMMANDS : COMMANDS, (error, stdout, stderr) => {
       if (error) {
-        console.error(error.toString());
+        console.error(kleur.red(error.toString()));
         reject('Something went wrong when trying to install the files!');
         return;
       }
       if (stdout) {
-        console.log(stdout);
+        console.log(kleur.blue(stdout));
       }
       if (stderr) {
-        console.log(stderr);
+        console.log(kleur.red(stderr));
       }
       resolve(!error);
     });
   });
   return result;
+};
+
+const writeEnvFile = (
+  config: {
+    [key: string]: string;
+  },
+  dryRun: boolean,
+) => {
+  const result = Object.keys(config)
+    .map((k) => `${k}=${config[k]}`)
+    .toString()
+    .replaceAll(',', '\n');
+  if (dryRun) {
+    console.log(kleur.blue('[i] Output .env file:'));
+    console.log(kleur.bgGreen(kleur.black(result)));
+  } else {
+    writeFile('./.env', result, {
+      encoding: config['PARROT_CACHE_FILE_ENCODING'] as BufferEncoding,
+    })
+      .then(() => {
+        console.log(kleur.green('[ok] .env file written successfully!'));
+        console.log(
+          kleur.blue(
+            '[i] To start the server, just run `npm start` inside the install folder.',
+          ),
+        );
+      })
+      .catch((e) => {
+        console.error(
+          kleur.red('An unexpected error occured when trying to write the .env file'),
+        );
+        console.error(kleur.red('Error details'), e.toString());
+        console.info(kleur.blue('Below the generated .env file contents.'));
+        console.log(result);
+      });
+  }
 };
 
 parseArgumentsAndStart();
