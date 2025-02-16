@@ -6,24 +6,10 @@
  * - Create the cache folder
  * - Check if the init is ready and start parrot
  */
-import { exec } from 'child_process';
-import { writeFile } from 'fs-extra';
+import { spawn } from 'child_process';
+import { copy, remove, rename, writeFile } from 'fs-extra';
 import kleur from 'kleur';
 import prompts from 'prompts';
-
-const COMMANDS = `
-npm i --prefix ./ @parrot-app/server
-mv ./node_modules/@parrot-app/server/*.* ./
-mv ./node_modules/@parrot-app/server/.env.sample ./.env
-mv parrot.functions.sample.js parrot.functions.js
-`;
-
-const DRY_RUN_COMMANDS = `
-echo 'npm i --prefix ./ @parrot-app/server'
-echo 'mv ./node_modules/@parrot-app/server/*.* ./'
-echo 'mv ./node_modules/@parrot-app/server/.env.sample ./.env'
-echo 'mv parrot.functions.sample.js parrot.functions.js'
-`;
 
 const parseArgumentsAndStart = () => {
   const args = process.argv;
@@ -62,7 +48,7 @@ const startPostInstallConfig = async (dryRun = false) => {
     {
       type: 'text',
       name: 'PARROT_API_BASE',
-      message: 'Target host eg.(https://api.dicebear.com/)',
+      message: 'Target host eg.(https://api.dicebear.com)',
       validate: (prev: string) => {
         return (
           prev.startsWith('http://') ||
@@ -174,6 +160,50 @@ const confirmAndInstall = async (dryRun = false) => {
   ]);
   if (response.confirmInstall === true) {
     const isInstallSuccess = await execCommands(dryRun);
+    console.log(process.cwd());
+    if (!dryRun) {
+      const parrotInstallPath = `${process.cwd()}/node_modules/@parrot-app/server`;
+      await copy(parrotInstallPath, process.cwd(), {
+        overwrite: true,
+      }).catch((e) => {
+        console.log(
+          kleur.red(`[Err] Coulnd't move ${parrotInstallPath} to ${process.cwd()}`),
+          '\n',
+          kleur.blue('Make sure the folder is writable and you have full access.'),
+          '\n',
+          e.toString(),
+        );
+      });
+      await remove(parrotInstallPath).catch((e) => {
+        console.log(kleur.yellow(`[Warn] Cannot remove '${parrotInstallPath}' folder.`));
+        console.log(kleur.yellow(`[Warn] This is not catastrophic, but is unexpected.`));
+        console.log(e);
+      });
+      await rename(`${process.cwd()}/.env.sample`, `${process.cwd()}/.env`).catch((e) => {
+        console.log(
+          kleur.red(`[Err] Can't copy the .env file`),
+          '\n',
+          e.toString(),
+          '\n',
+          kleur.blue(
+            'You can still run ParrotJS Server by renaming the .env.sample to .env',
+          ),
+          '\n',
+          kleur.blue('and customizing the .env file values.'),
+        );
+      });
+      await rename(
+        `${process.cwd()}/parrot.functions.sample.js`,
+        `${process.cwd()}/parrot.functions.js`,
+      ).catch((e) => {
+        console.log(
+          kleur.red(`Can't rename the parrot.functions.js file.`),
+          '\n',
+          e.toString(),
+          '\n',
+        );
+      });
+    }
     if (isInstallSuccess) {
       console.info(
         kleur.blue(
@@ -187,21 +217,27 @@ const confirmAndInstall = async (dryRun = false) => {
 };
 
 const execCommands = (dryRun: boolean) => {
-  const result = new Promise<boolean>((resolve, reject) => {
-    exec(dryRun ? DRY_RUN_COMMANDS : COMMANDS, (error, stdout, stderr) => {
-      if (error) {
-        console.error(kleur.red(error.toString()));
-        reject('Something went wrong when trying to install the files!');
-        return;
-      }
-      if (stdout) {
-        console.log(kleur.blue(stdout));
-      }
-      if (stderr) {
-        console.log(kleur.red(stderr));
-      }
-      resolve(!error);
-    });
+  const result = new Promise<string>((resolve, reject) => {
+    console.log(kleur.blue('Installing files, please wait, this might take some time.'));
+    if (dryRun) {
+      resolve('Install finished! (dryRun)');
+    } else {
+      const packageName = '@parrot-app/server';
+      const npmProcess = spawn('npm', ['install', packageName], { stdio: 'inherit' });
+      npmProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve(`Installed ${packageName}.`);
+        } else {
+          console.error(`[${packageName}] Installation failed with code ${code}.`);
+          reject(new Error(`npm install ${packageName} failed with code ${code}`));
+        }
+      });
+
+      npmProcess.on('error', (err) => {
+        console.error(`[${packageName}] Error spawning npm process: ${err}`);
+        reject(err); // Reject if the process couldn't be spawned
+      });
+    }
   });
   return result;
 };

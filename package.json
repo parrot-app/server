@@ -1,6 +1,6 @@
 {
   "name": "@parrot-app/server",
-  "version": "1.0.2-rc1",
+  "version": "1.0.3-beta.1",
   "main": "index.js",
   "repository": {
     "url": "git+https://github.com/parrot-app/server.git"
@@ -8,9 +8,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "server": "dist/index.js"
-  },
+  "bin": "./dist/installer.js",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/parrot-app/server/issues"
@@ -26,7 +24,8 @@
     "dev": "nodemon",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prepack": "chmod +x dist/installer.js && chmod +x dist/index.js"
   },
   "keywords": [],
   "author": "",

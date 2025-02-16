@@ -26,6 +26,17 @@ If we add ParrotJS to the mix we would now have the following flow:
 
 ParrotJS will pretend to be your Backend by responding with the same headers and body for each type of your requests. If your backend is down/unreachable/offline you can keep working because ParrotJS will still _parrot_ the same responses it's keeping in cache.
 
+## Getting started
+
+To install ParrotJS Server, head to an empty folder for example:
+`cd ~/workspace/parrot-my-cool-app`
+
+Then run the following command:
+`npx @parrot-app/server --install`
+
+Follow the prompts and once done, just run:
+`npm start`
+
 ## Motivation
 
 If you're a Frontend developer, like me. You've surely had to deal with some kind of backend API. The biggest hurdle is usually to run that backend API or call it remotely. This is where usually things become less _"standard"_ and you find yourself in one of those situations :
@@ -35,29 +46,32 @@ If you're a Frontend developer, like me. You've surely had to deal with some kin
 - Call the live server (yes, some teams do that for some reason)
 - Run a Docker container with the backend
 - Etc...
-  In all these cases, you find yourself at the mercy of the backend. If it's running locally, your machine is dying with so many resources reserved for the backend app.
-  If on the other hand you're calling a remote API. It takes a network issue or a codebase update to break or slow down your work.
-  Another major issue is the API returned data not being consistent with your current task (new data added, data structure changes etc).
-  And finally, how all of this makes things hard to debug and test quickly your work.
+
+Of course, there are many drawbacks to this situation:
+
+- Running the backend locally is resource intensive
+- Having to keep up with the backend's dev progress
+- Having to install all the needed backend's tools and dev environnement
+- If the backend is not up to date or the dev is lagging behind, it will slow your frontend dev
+- If the backend is down, you can't work until it's fixed
+- Etc...
 
 ## What ParrotJS can do for you?
 
-ParrotJS is firstly a debug tool. Its main purpose is to be as transparent of a tool as possible. Something you don't really think about only when you need something **specific**.
+ParrotJS Server is a simple **cache** server. Its purpose is to relay any request from your frontend app to the backend then intercept the backend's response and send it to the frontend app.
 
-When you start ParrotJS the first time, it will just repeat whatever your backend server does. Hence the name "Parrot". Every request and response is kept in cache and ParrotJS will build its own version of cache for you. If your frontend tries to request the same resource (and with some criteria you can learn about down below), ParrotJS will take over and return that response without hitting the backend.
-
-Now let's suppose you need to change the server's response to test something. If your request was cached by ParrotJS. You will be able to change that response just by changing the corresponding JSON file containing the request body and headers.
+Behind the scenes, ParrotJS Server will then build a cache folder and file hiearchy of all the requests and responses. It will be able to _"Parrot"_ those requests again and again.
 
 ### How it works
 
 First you'll configure your Parrot. Second you'll point your frontend to Parrot. Finally you'll use your frontend app as usual and keep an eye on the cache folder.
 
 1. Head to a folder for example `~/workspace/parrot-my-cool-app`, this will be your cache server for your backend. Parrot will make sure to keep your cache neatly organized in that folder.
-2. Run the command `npx parrot init`, the CLI will ask you few questions to initialize a `config.parrot.ts`. You can run `npx parrot init -y` to generate a sample file and change its content with your favorite text editor if you hate pesky CLIs.
-3. Once `config.parrot.ts` generated, simply run `npx parrot run` and we're done with our favorite birb.
+2. Run the command `npx @parrot-app/server --install`, the CLI will ask you few questions to initialize an `.env` and `parrot.functions.js` files.
+3. Once done, just run `npm start` in that same folder.
 4. Head to your frontend dev app and point your base URL to Parrot's address and port (defaults to `localhost:1120`)
 5. Start your frontend dev app and navigate through it to make API calls. The more the better.
-6. Note how Parrot is creating a `requests.json` file and subfolders with `*_body.json` and `*_headers.json` files.
+6. Note how Parrot is creating a `requests.json` file and subfolders with `*_body.json` and `*_headers.json` files in a `cache` folder.
 
 Now let's understand how you can use all this at your advantage. Let's say that you have a simple `GET /user/ID_0029`:
 
@@ -67,11 +81,11 @@ Now let's understand how you can use all this at your advantage. Let's say that 
 [
   {
     "method": "GET",
-    "url": "/api/v1/user",
+    "url": "/user",
     "body": {},
     "code": 200,
-    "headers": "cache/user/ID_0029_headers.json",
-    "response": "cache/user/ID_0029_body.json"
+    "headers": "cache/user/ID_0029_headers_rand0mText.json",
+    "response": "cache/user/ID_0029_body_rand0mText.json"
   }
 ]
 ```
@@ -81,7 +95,62 @@ Now let's understand how you can use all this at your advantage. Let's say that 
   - Headers will contain the response headers of your API, useful if for example you're using the headers to send important frontend data
   - Body contains the API's response body this makes it easy to change/edit
 
-That's it! You can even add files on the fly or edit those JSONs and call Parrot again, it will just respond with the files contents.
+That's it! You can even add files on the fly or edit those JSONs and call Parrot's API, it will just respond with the new files' contents.
+
+### Other useful features
+
+Parrot can also be useful if you want to mock your backend API for quick testing purposes. Let's say you need the following endpoint:
+
+`GET /products/P_00001`
+
+You can simply head to the `cache/requests.json` and add an entry like:
+
+```json
+[
+  {
+    "method": "GET",
+    "url": "/products/P_00001",
+    "body": {},
+    "code": 200,
+    "responseHeaders": {
+      "content-type": "application/json",
+      "x-special-header": "My cool header app"
+    },
+    "responseBody": {
+      "name": "Cool product 1",
+      "id": "P_00001",
+      "price": "99.99",
+      "currency": "EUR"
+    }
+  }
+]
+```
+
+If you request the resource for example:
+
+```bash
+curl https://localhost:9443/products/P_00001 --insecure -v
+```
+
+The result will be:
+
+```text
+< HTTP/1.1 200 OK
+< X-Powered-By: Express
+< Access-Control-Allow-Origin: *
+< Content-Type: application/json; charset=utf-8
+< x-special-header: My cool header app
+< Content-Length: 73
+< ETag: W/"49-FGon8DAcaTrGVIBfGfpE4N/I7z8"
+< Date: Sun, 16 Feb 2025 16:04:06 GMT
+< Connection: keep-alive
+< Keep-Alive: timeout=5
+<
+* Connection #0 to host localhost left intact
+{"name":"Cool product 1","id":"P_00001","price":"99.99","currency":"EUR"}
+```
+
+As you can see, Parrot responds to the request with the JSON headers and content you've set.
 
 ## Why not just mock in the frontend?
 
@@ -95,24 +164,27 @@ ParrotJS runs (and should always run) in your local environnement to keep all yo
 
 ## Current limitations/planned improvements
 
-- [ ] Corporate proxy is hit or miss (Needs more testing, works for me at work)
+- [ ] Corporate proxy is hit or miss (Needs more testing, works for me behind my corporate office's proxy)
 - [ ] Compare request content and privilege responses with content rather than without
+- [ ] Ignore specific response codes? (this is possible to some extend in parrot.functions.js)
 - [ ] Handles only JSON responses: Parrot handles all kind of responses but serializes them into JSON, not sure it's the best format tough
-- [ ] Error catching
-- [ ] Parse and call OpenAPI files?
+- [ ] Error catching (some cases where an error is thrown are not handled properly)
+- [ ] Parse and call OpenAPI files? (could be useful to fetch and cache an entire collection)
 - [ ] Smart error catching (for example if `/user/ID_0029` is cached, respond with the same data for `/user/ID_0030` and increment relevant items)
 - [ ] Multiple API base URLs?
 - [ ] Interactive-mode CLI for API handling? (useful?)
 - [ ] WS and WSS protocol?
 - [ ] GraphQL support?
-- [ ] Proxy any kind of file based on mimetype?
 - [ ] Add stats? (ttfb with target server, diff, cache?)
+- [ ] Throttling to emulate slow API responses
 - [x] Add timestamps and random IDs for requests
-- [ ] Add log files
+- [x] Add log files
 - [ ] Visual/GUI/Web-server frontend tool?
 - [x] Adding a plain JSON file in the `requests.json` (gets transformed) or handled like json with ref files?
 - [x] Wildcard handling eg. `/api/v1/user/*/settings`
+- [ ] Improvements to wildcard handling (better responses?)
 - [ ] `parrot.functions.js` in TS too?
+- [ ] npx installer in a single line
 
 ## Contribute
 
