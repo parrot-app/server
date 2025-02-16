@@ -19,17 +19,17 @@ const parseArgumentsAndStart = () => {
       kleur.bgGreen('### ParrotJS -- Help ###'),
       '\n\n',
       kleur.white('To install ParrotJS please run\n'),
-      kleur.underline('npx @parrot-app/server -i\n'),
+      kleur.underline('npx @chyfra/parrot-js -i\n'),
       kleur.white('or\n'),
-      kleur.underline('npx @parrot-app/server --install\n\n'),
+      kleur.underline('npx @chyfra/parrot-js --install\n\n'),
       kleur.bgYellow(kleur.black('Note: Please run the install in an empty folder.')),
       '\n\n',
       kleur.white('To display the help page run\n'),
-      kleur.underline('npx @parrot-app/server -h\n'),
+      kleur.underline('npx @chyfra/parrot-js -h\n'),
       kleur.white('or\n'),
-      kleur.underline('npx @parrot-app/server --help\n\n'),
+      kleur.underline('npx @chyfra/parrot-js --help\n\n'),
       kleur.white('Dry run (debug purposes)\n'),
-      kleur.underline('npx @parrot-app/server --dry\n\n'),
+      kleur.underline('npx @chyfra/parrot-js --dry\n\n'),
       kleur.bgGreen(kleur.black('More commands in the future o/')),
       '\n',
     );
@@ -162,7 +162,7 @@ const confirmAndInstall = async (dryRun = false) => {
     const isInstallSuccess = await execCommands(dryRun);
     console.log(process.cwd());
     if (!dryRun) {
-      const parrotInstallPath = `${process.cwd()}/node_modules/@parrot-app/server`;
+      const parrotInstallPath = `${process.cwd()}/node_modules/@chyfra/parrot-js`;
       await copy(parrotInstallPath, process.cwd(), {
         overwrite: true,
       }).catch((e) => {
@@ -222,7 +222,7 @@ const execCommands = (dryRun: boolean) => {
     if (dryRun) {
       resolve('Install finished! (dryRun)');
     } else {
-      const packageName = '@parrot-app/server';
+      const packageName = '@chyfra/parrot-js';
       const npmProcess = spawn('npm', ['install', packageName], { stdio: 'inherit' });
       npmProcess.on('close', (code) => {
         if (code === 0) {

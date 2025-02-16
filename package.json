@@ -1,9 +1,9 @@
 {
-  "name": "@parrot-app/server",
+  "name": "@chyfra/parrot-js",
   "version": "1.0.3-beta.1",
   "main": "index.js",
   "repository": {
-    "url": "git+https://github.com/parrot-app/server.git"
+    "url": "git+https://github.com/chyfra/parrot-js.git"
   },
   "publishConfig": {
     "access": "public"
@@ -11,9 +11,9 @@
   "bin": "./dist/installer.js",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/parrot-app/server/issues"
+    "url": "https://github.com/chyfra/parrot-js/issues"
   },
-  "homepage": "https://github.com/parrot-app/server#readme",
+  "homepage": "https://github.com/chyfra/parrot-js#readme",
   "scripts": {
     "clean": "rimraf dist",
     "build:types": "tsc --build ./tsconfig.build.json",

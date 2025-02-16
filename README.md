@@ -32,7 +32,7 @@ To install ParrotJS Server, head to an empty folder for example:
 `cd ~/workspace/parrot-my-cool-app`
 
 Then run the following command:
-`npx @parrot-app/server --install`
+`npx @chyfra/parrot-js --install`
 
 Follow the prompts and once done, just run:
 `npm start`
@@ -67,7 +67,7 @@ Behind the scenes, ParrotJS Server will then build a cache folder and file hiear
 First you'll configure your Parrot. Second you'll point your frontend to Parrot. Finally you'll use your frontend app as usual and keep an eye on the cache folder.
 
 1. Head to a folder for example `~/workspace/parrot-my-cool-app`, this will be your cache server for your backend. Parrot will make sure to keep your cache neatly organized in that folder.
-2. Run the command `npx @parrot-app/server --install`, the CLI will ask you few questions to initialize an `.env` and `parrot.functions.js` files.
+2. Run the command `npx @chyfra/parrot-js --install`, the CLI will ask you few questions to initialize an `.env` and `parrot.functions.js` files.
 3. Once done, just run `npm start` in that same folder.
 4. Head to your frontend dev app and point your base URL to Parrot's address and port (defaults to `localhost:1120`)
 5. Start your frontend dev app and navigate through it to make API calls. The more the better.
